@@ -1,7 +1,6 @@
 import polars as pl
-from .ratingBase import ratingBase
 
-class DIGINETICA(ratingBase):
+class DIGINETICA:
 
     def __init__(self):
 
@@ -14,6 +13,14 @@ class DIGINETICA(ratingBase):
 
         # Sort by session_id & timeframe
         df_RAW = df_RAW.sort("session_id", "timeframe")
+
+        # Delete items that have been viewed consecutively
+        df_RAW = df_RAW.filter(
+            pl.any_horizontal(
+                (pl.col("session_id") != pl.col("session_id").shift(1)),
+                (pl.col("item_id") != pl.col("item_id").shift(1)),  
+            ).fill_null(True)
+        )
 
         # Split into TRAIN, VALID, TEST subset
         df_SUBSET = {
