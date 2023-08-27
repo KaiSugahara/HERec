@@ -1,3 +1,4 @@
+from .AMAZON_M2 import AMAZON_M2
 from .BookCrossing import BookCrossing
 from .DIGINETICA import DIGINETICA
 from .ML1M import ML1M
