@@ -47,6 +47,22 @@ function Amazon () {
     fi
 }
 
+function DIGINETICA () {
+    if [ ! -e "DIGINETICA/dataset-train-diginetica.zip" ]; then
+        mkdir -p DIGINETICA
+        echo "Please download dataset-train-diginetica.zip to `pwd`/DIGINETICA and unzip it."
+        echo "The zip file is available at https://drive.google.com/drive/folders/0B7XZSACQf0KdXzZFS21DblRxQ3c?resourcekey=0-3k4O5YlwnZf0cNeTZ5Y_Uw&usp=sharing"
+    fi
+}
+
+function AMAZON_M2 () {
+    if [ ! -e "AMAZON_M2/sessions_train.csv" ]; then
+        mkdir -p AMAZON_M2
+        echo "Please download sessions_train.csv to `pwd`/AMAZON_M2 and unzip it."
+        echo "The zip file is available at https://www.aicrowd.com/challenges/amazon-kdd-cup-23-multilingual-recommendation-challenge"
+    fi
+}
+
 if [ $1 = "INIT" ]; then
     ls | grep -v -E 'download.sh' | xargs rm -r
 elif [ $1 = "ML100K" ]; then
@@ -61,6 +77,10 @@ elif [ $1 = "ML25M" ]; then
 #     BookCrossing
 # elif [ $1 = "Amazon" ]; then
 #     Amazon
+elif [ $1 = "DIGINETICA" ]; then
+    DIGINETICA
+elif [ $1 = "AMAZON_M2" ]; then
+    AMAZON_M2
 elif [ $1 = "ALL" ]; then
     ML100K
     ML1M
@@ -68,6 +88,8 @@ elif [ $1 = "ALL" ]; then
     ML25M
     # BookCrossing
     # Amazon
+    DIGINETICA
+    AMAZON_M2
 else
     echo "Invalid Argument"
 fi
