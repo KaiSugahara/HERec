@@ -1,0 +1,27 @@
+# MODEL
+embedDim: 
+  - 16
+  - 64
+  - 256
+  - 1024
+  - 4096
+GRU_LAYER_SIZES:
+  - [100]
+FF_LAYER_SIZES:
+  - [100]
+clusterNums:
+  - [100, 10]
+
+# TRAINER
+epoch_nums:
+  - 64
+batch_size:
+  - 1024
+learning_rate:
+  - 0.001
+seed:
+  - 0
+weight_decay:
+  - 0
+es_patience:
+  - 0
