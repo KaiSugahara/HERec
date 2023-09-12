@@ -17,6 +17,29 @@ from flax.training import orbax_utils
 
 class baseTrainer:
 
+    def get_best_epochid(self):
+
+        """
+            func: search epochid with best validation score from history
+            args: None
+            returns:
+                epochid: int
+                    epochid with best validation score
+        """
+
+        return sorted(self.loss_history.items(), key=(lambda tup: tup[1]["VALID_LOSS"]))[0][0]
+    
+    def get_best_params(self):
+
+        """
+            func: search model parameters with best validation score
+            args: None
+            returns:
+                params
+        """
+
+        return self.checkpoint_manager.restore(step=self.get_best_epochid())
+
     def __get_key(self, is_init=False):
         
         """
@@ -45,19 +68,17 @@ class baseTrainer:
         # 検証ロスが計算されていない場合は継続判定
         if "VALID_LOSS" not in self.loss_history[epoch_idx+1].keys():
             return False
-
-        # 検証ロスが増加した場合はes_counter++
-        if self.loss_history[epoch_idx+1]["VALID_LOSS"] > self.loss_history[epoch_idx]["VALID_LOSS"]:
-            self.es_counter = getattr(self, "es_counter", 0) + 1
-        # 増加しなかった場合はes_counterをリセット
-        else:
-            self.es_counter = 0
-
-        # es_counterがes_patienceを上回った場合はStop判定
-        if self.es_counter >= self.es_patience:
-            return True
         
-        # 上回らなかった場合は継続判定
+        # ベスト検証ロスを更新できない場合はカウント & 終了判定
+        if getattr(self, "_es_best_loss", np.inf) < self.loss_history[epoch_idx+1]["VALID_LOSS"]:
+            self._es_counter = getattr(self, "_es_counter", 0) + 1
+            if self._es_counter == self.es_patience:
+                return True
+        # ベスト検証ロスを更新する場合
+        else:
+            self._es_counter = 0
+            self._es_best_loss = self.loss_history[epoch_idx+1]["VALID_LOSS"]
+            
         return False
 
     def score(self, params, df_DATA):
@@ -210,7 +231,10 @@ class baseTrainer:
         self.checkpoint_manager = orbax.checkpoint.CheckpointManager(
             ckpt_path,
             orbax.checkpoint.PyTreeCheckpointer(),
-            options=orbax.checkpoint.CheckpointManagerOptions(create=True)
+            options=orbax.checkpoint.CheckpointManagerOptions(
+                max_to_keep=(self.es_patience+1 if self.es_patience > 0 else None),
+                create=True,
+            )
         )
 
         # 損失履歴リストを初期化
@@ -231,7 +255,7 @@ class baseTrainer:
             # Save Checkpoint
             ckpt = self.state.params
             save_args = orbax_utils.save_args_from_target(ckpt)
-            self.checkpoint_manager.save(epoch_idx, ckpt, save_kwargs={'save_args': save_args})
+            self.checkpoint_manager.save(epoch_idx+1, ckpt, save_kwargs={'save_args': save_args})
 
             # EarlyStopping判定
             if self.__early_stopping(epoch_idx): break
