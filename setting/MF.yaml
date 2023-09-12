@@ -2,8 +2,8 @@
 model:
   embedDim:
     type: int
-    low: 16
-    high: 4096
+    low: 10
+    high: 1000
     log: True
 
 # TRAINER
@@ -14,8 +14,8 @@ trainer:
       - 1024
   batch_size:
     type: int
-    low: 64
-    high: 1024
+    low: 100
+    high: 1000
     log: True
   learning_rate:
     type: float
