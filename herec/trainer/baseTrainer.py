@@ -76,7 +76,7 @@ class baseTrainer:
         # 上回らなかった場合は継続判定
         return False
 
-    def score(self, df_DATA):
+    def score(self, params, df_DATA):
 
         """
             func: 入力されたx, yからロスを計算
@@ -92,7 +92,7 @@ class baseTrainer:
         variables = self.variables
         # ミニバッチ単位でロスを計算
         for i, (X, Y) in enumerate(loader):
-            loss, variables = self.loss_function(self.state.params, variables, X, Y)
+            loss, variables = self.loss_function(params, variables, X, Y)
             batch_size_list.append(X.shape[0])
             batch_loss_list.append(loss)
 
@@ -114,12 +114,12 @@ class baseTrainer:
 
         # 訓練ロスを計算 (calc_fullbatch_loss=Trueの場合)
         if self.calc_fullbatch_loss:
-            self.loss_history[epoch_idx+1][f"TRAIN_LOSS"] = (loss := self.score(df_TRAIN))
+            self.loss_history[epoch_idx+1][f"TRAIN_LOSS"] = (loss := self.score(self.state.params, df_TRAIN))
             if self.run: mlflow.log_metric("TRAIN_LOSS", loss, step=epoch_idx+1)    # MLFlowに保存
 
         # 検証ロスを計算
         if df_VALID is not None:
-            self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.score(df_VALID))
+            self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.score(self.state.params, df_VALID))
             if self.run: mlflow.log_metric("VALID_LOSS", loss, step=epoch_idx+1)    # MLFlowに保存
 
         # カスタムスコアを計算
