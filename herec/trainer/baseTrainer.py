@@ -13,26 +13,6 @@ from tqdm import tqdm
 
 class baseTrainer:
 
-    def plot_loss_history(self):
-
-        """
-            func: 損失履歴をプロット
-        """
-
-        import pandas as pd
-        import plotly.express as px
-
-        # DataFrameに変換する
-        loss_history = pd.DataFrame(self.loss_history).T
-        loss_history.index.name = "epoch"
-        loss_history.columns.name = "LABEL"
-
-        # Plotly
-        fig = px.line(loss_history)
-        fig.update_yaxes(title_text="loss")
-
-        return fig
-
     def __get_key(self, is_init=False):
         
         """
@@ -240,31 +220,6 @@ class baseTrainer:
             if self.__early_stopping(epoch_idx): break
 
         return self
-
-    def get_param(self, attr_name):
-
-        if attr_name == "params":
-            return state.params if (state := getattr(self, "state", False)) else None
-        else:
-            return getattr(self, name, None)
-
-    def get_params(self, deep=True):
-
-        """
-            func: ハイパーパラメータとモデルパラメータを辞書型で返す
-        """
-
-        outputs = {}
-        
-        # ハイパーパラメータを取得
-        attribute_list = ["epoch_nums", "batch_size", "learning_rate", "seed", "verbose", "hyper_params"]
-        outputs.update( {name: getattr(self, name, None) for name in attribute_list} )
-
-        # モデルパラメータを取得
-        outputs["params"] = state.params if (state := getattr(self, "state", False)) else None
-        outputs["variables"] = getattr(self, "variables", None)
-
-        return outputs
 
     def set_params(self, **parameters):
 
