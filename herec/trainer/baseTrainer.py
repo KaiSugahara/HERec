@@ -115,12 +115,12 @@ class baseTrainer:
         # 訓練ロスを計算 (calc_fullbatch_loss=Trueの場合)
         if self.calc_fullbatch_loss:
             self.loss_history[epoch_idx+1][f"TRAIN_LOSS"] = (loss := self.score(self.state.params, df_TRAIN))
-            if self.run: mlflow.log_metric("TRAIN_LOSS", loss, step=epoch_idx+1)    # MLFlowに保存
+            mlflow.log_metric("TRAIN_LOSS", loss, step=epoch_idx+1)    # MLFlowに保存
 
         # 検証ロスを計算
         if df_VALID is not None:
             self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.score(self.state.params, df_VALID))
-            if self.run: mlflow.log_metric("VALID_LOSS", loss, step=epoch_idx+1)    # MLFlowに保存
+            mlflow.log_metric("VALID_LOSS", loss, step=epoch_idx+1)    # MLFlowに保存
 
         # カスタムスコアを計算
         if hasattr(self, 'calc_current_custom_score'):
@@ -188,7 +188,7 @@ class baseTrainer:
                 self.loss_history[epoch_idx+1][f"TRAIN_LOSS(M.B.AVE.)"].append(loss)
             # 平均ミニバッチ損失を計算
             self.loss_history[epoch_idx+1][f"TRAIN_LOSS(M.B.AVE.)"] = (save_loss := np.mean(self.loss_history[epoch_idx+1][f"TRAIN_LOSS(M.B.AVE.)"]))
-            if self.run: mlflow.log_metric("TRAIN_LOSS/REF.", save_loss, step=epoch_idx+1)    # MLFlowに保存
+            mlflow.log_metric("TRAIN_LOSS/REF.", save_loss, step=epoch_idx+1)    # MLFlowに保存
 
         return self
 
@@ -284,12 +284,13 @@ class baseTrainer:
         return self
 
 
-    def __init__(self, model, dataLoader, epoch_nums=128, batch_size=512, learning_rate=0.001, seed=0, verbose=2, weight_decay=0, calc_fullbatch_loss=False, run=None, es_patience=0, **other_params):
+    def __init__(self, model, dataLoader, run, epoch_nums=128, batch_size=512, learning_rate=0.001, seed=0, verbose=2, weight_decay=0, calc_fullbatch_loss=False, es_patience=0, **other_params):
 
         """
             args:
                 model: Flaxベースのモデル
                 dataLoader: データローダ
+                run: MLFlow Run
                 epoch_nums: エポック数
                 batch_size: ミニバッチのサイズ
                 learning_rate: 学習率
@@ -297,7 +298,6 @@ class baseTrainer:
                 verbose: 学習プロセスの進捗表示（2: すべて表示, 1: エポック毎の表示, 0: すべて非表示）
                 weight_decay: weight_decay of Adam
                 calc_fullbatch_loss: エポック毎にフルバッチの訓練損失を計算し直すか？
-                run: MLFlow Run
                 other_params: その他のモデル特有のハイパーパラメータ, 可変長引数
                 es_patience: patience to judge early stopping
         """
