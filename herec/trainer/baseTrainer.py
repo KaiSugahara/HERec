@@ -70,7 +70,7 @@ class baseTrainer:
             return False
         
         # ベスト検証ロスを更新できない場合はカウント & 終了判定
-        if getattr(self, "_es_best_loss", np.inf) < self.loss_history[epoch_idx+1]["VALID_LOSS"]:
+        if getattr(self, "_es_best_loss", self.loss_history[0]["VALID_LOSS"]) < self.loss_history[epoch_idx+1]["VALID_LOSS"]:
             self._es_counter = getattr(self, "_es_counter", 0) + 1
             if self._es_counter == self.es_patience:
                 return True
@@ -237,6 +237,11 @@ class baseTrainer:
 
         # 現在のロスを計算
         self.__calc_current_loss(-1, df_TRAIN, df_VALID)
+
+        # Save Checkpoint at step=0
+        ckpt = self.state.params
+        save_args = orbax_utils.save_args_from_target(ckpt)
+        self.checkpoint_manager.save(0, ckpt, save_kwargs={'save_args': save_args})
 
         # 学習
         for epoch_idx in range(self.epoch_nums):
