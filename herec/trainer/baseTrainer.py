@@ -11,6 +11,10 @@ import optax
 from functools import partial
 from tqdm import tqdm
 
+from pathlib import Path
+import orbax.checkpoint
+from flax.training import orbax_utils
+
 class baseTrainer:
 
     def __get_key(self, is_init=False):
@@ -201,6 +205,14 @@ class baseTrainer:
         # 定義：モデルパラメータの状態
         self.state = train_state.TrainState.create(apply_fn=self.model.apply, params=params, tx=tx)
 
+        # 定義：CheckpointManager
+        ckpt_path = Path(self.ckpt_dir) / Path(self.run.info.run_id)
+        self.checkpoint_manager = orbax.checkpoint.CheckpointManager(
+            ckpt_path,
+            orbax.checkpoint.PyTreeCheckpointer(),
+            options=orbax.checkpoint.CheckpointManagerOptions(create=True)
+        )
+
         # 損失履歴リストを初期化
         self.loss_history = defaultdict(dict)
 
@@ -215,6 +227,11 @@ class baseTrainer:
 
             # 現在のロスを計算
             self.__calc_current_loss(epoch_idx, df_TRAIN, df_VALID)
+
+            # Save Checkpoint
+            ckpt = self.state.params
+            save_args = orbax_utils.save_args_from_target(ckpt)
+            self.checkpoint_manager.save(epoch_idx, ckpt, save_kwargs={'save_args': save_args})
 
             # EarlyStopping判定
             if self.__early_stopping(epoch_idx): break
@@ -239,13 +256,14 @@ class baseTrainer:
         return self
 
 
-    def __init__(self, model, dataLoader, run, epoch_nums=128, batch_size=512, learning_rate=0.001, seed=0, verbose=2, weight_decay=0, calc_fullbatch_loss=False, es_patience=0, **other_params):
+    def __init__(self, model, dataLoader, run, ckpt_dir, epoch_nums=128, batch_size=512, learning_rate=0.001, seed=0, verbose=2, weight_decay=0, calc_fullbatch_loss=False, es_patience=0, **other_params):
 
         """
             args:
                 model: Flaxベースのモデル
                 dataLoader: データローダ
                 run: MLFlow Run
+                ckpt_dir: checkpointのセーブ先ディレクトリ
                 epoch_nums: エポック数
                 batch_size: ミニバッチのサイズ
                 learning_rate: 学習率
