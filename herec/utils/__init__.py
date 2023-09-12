@@ -1,1 +1,1 @@
-from .hyParamLoader import hyParamLoader
+from .hyParamSuggester import hyParamSuggester
