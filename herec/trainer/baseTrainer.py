@@ -117,11 +117,6 @@ class baseTrainer:
 
         print_objects = []
 
-        # 訓練ロスを計算 (calc_fullbatch_loss=Trueの場合)
-        if self.calc_fullbatch_loss:
-            self.loss_history[epoch_idx+1][f"TRAIN_LOSS"] = (loss := self.score(self.state.params, df_TRAIN))
-            mlflow.log_metric("TRAIN_LOSS", loss, step=epoch_idx+1)    # MLFlowに保存
-
         # 検証ロスを計算
         if df_VALID is not None:
             self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.score(self.state.params, df_VALID))
@@ -262,16 +257,6 @@ class baseTrainer:
 
         return self
 
-    def set_params(self, **parameters):
-
-        """
-            func: 与えられたハイパーパラメータの値をセット
-        """
-
-        for parameter, value in parameters.items():
-            setattr(self, parameter, value)
-        return self
-
     def clear_cache(self):
 
         self.__train_batch.clear_cache()
@@ -280,26 +265,27 @@ class baseTrainer:
         return self
 
 
-    def __init__(self, model, dataLoader, run, ckpt_dir, epoch_nums=128, batch_size=512, learning_rate=0.001, seed=0, verbose=2, weight_decay=0, calc_fullbatch_loss=False, es_patience=0, **other_params):
+    def __init__(self, model, dataLoader, run, ckpt_dir, epoch_nums=128, batch_size=512, learning_rate=0.001, seed=0, verbose=2, weight_decay=0, es_patience=0, **other_params):
 
         """
             args:
-                model: Flaxベースのモデル
-                dataLoader: データローダ
-                run: MLFlow Run
-                ckpt_dir: checkpointのセーブ先ディレクトリ
-                epoch_nums: エポック数
-                batch_size: ミニバッチのサイズ
-                learning_rate: 学習率
-                seed: ランダムシード
-                verbose: 学習プロセスの進捗表示（2: すべて表示, 1: エポック毎の表示, 0: すべて非表示）
+                model: a model using Flax
+                dataLoader: loader of dataset
+                run: run of MLFlow
+                ckpt_dir: save dir. of model parameter checkpoint
+                epoch_nums: # of epochs
+                batch_size: the size of Mini-batch
+                learning_rate: learning rate of AdamW
+                seed: random seed of initializer
+                verbose: print of status（2: all print, 1: part print, 0: nothing）
                 weight_decay: weight_decay of Adam
-                calc_fullbatch_loss: エポック毎にフルバッチの訓練損失を計算し直すか？
-                other_params: その他のモデル特有のハイパーパラメータ, 可変長引数
+                other_params: model-specific hyper-parameters (options)
                 es_patience: patience to judge early stopping
         """
 
-        # ハイパーパラメータをセット
-        local_params = locals().copy() # ローカル変数を取得
-        del local_params["self"] # インスタンス自身は除外
-        self.set_params(**local_params)
+        # Get arguments
+        args = locals().copy()
+        # Exclude "self"
+        del args["self"]
+        # Set arguments as class members
+        for key, value in args.items(): setattr(self, key, value)
