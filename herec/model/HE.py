@@ -1,11 +1,12 @@
 import jax
 from flax import linen as nn
 import jax.numpy as jnp
+from typing import Sequence
 
 class HE(nn.Module):
 
     objNum: int
-    clusterNums: list[int]
+    clusterNums: Sequence[int]
     embedDim: int
 
     def setup( self ):

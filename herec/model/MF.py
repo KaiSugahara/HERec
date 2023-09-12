@@ -14,7 +14,7 @@ class MF(nn.Module):
         user_ids = X[:, 0]
         item_ids = X[:, 1]
 
-        U = nn.Embed(num_embeddings=self.user_num, features=self.embedDim, dtype=jnp.float32)(user_ids)
-        V = nn.Embed(num_embeddings=self.item_num, features=self.embedDim, dtype=jnp.float32)(item_ids)
+        U = nn.Embed(num_embeddings=self.user_num, features=self.embedDim)(user_ids)
+        V = nn.Embed(num_embeddings=self.item_num, features=self.embedDim)(item_ids)
         
         return jnp.sum(U * V, axis=1, keepdims=True)
