@@ -11,7 +11,9 @@ class hyParamSuggester():
             return trial.suggest_categorical(name, conf["choices"])
         if conf["type"] == "float":
             return trial.suggest_float(name, low=float(conf["low"]), high=float(conf["high"]), log=conf["log"])
-        raise Exception("")
+        if conf["type"] == "int":
+            return trial.suggest_int(name, low=int(conf["low"]), high=int(conf["high"]), log=conf["log"])
+        raise Exception("Invalid Type")
 
     def suggest_hyparam(self, trial):
         return dict(
