@@ -22,10 +22,6 @@ trainer:
     low: 1e-4
     high: 1e-1
     log: True
-  seed:
-    type: categorical
-    choices:
-      - 0
   weight_decay:
     type: float
     low: 1e-5
