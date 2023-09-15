@@ -1,13 +1,14 @@
 import pandas as pd
 import polars as pl
 from sklearn.model_selection import train_test_split
+from herec.utils import *
 
 class AMAZON_M2():
 
     def __init__(self):
 
         # READ
-        df_RAW = pd.read_csv("../dataset/AMAZON_M2/sessions_train.csv")
+        df_RAW = pd.read_csv(f"{getRepositoryPath()}/dataset/AMAZON_M2/sessions_train.csv")
         df_RAW = pl.from_pandas(df_RAW)
 
         # Filter sessions in JP

@@ -1,11 +1,12 @@
 import polars as pl
+from herec.utils import *
 
 class DIGINETICA:
 
     def __init__(self):
 
         # Read
-        df_RAW = pl.read_csv("../dataset/DIGINETICA/train-item-views.csv", separator=";", null_values="NA", new_columns=["session_id", "user_id", "item_id", "timeframe", "eventdate"])
+        df_RAW = pl.read_csv(f"{getRepositoryPath()}/dataset/DIGINETICA/train-item-views.csv", separator=";", null_values="NA", new_columns=["session_id", "user_id", "item_id", "timeframe", "eventdate"])
         df_RAW = df_RAW.drop("user_id")
 
         # Cast Datetime
