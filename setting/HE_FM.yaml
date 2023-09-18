@@ -5,10 +5,20 @@ model:
     low: 10
     high: 1000
     log: True
-  clusterNums:
+  userClusterNums:
     type: int
     low: 10
     high: 1000
+    log: True
+  itemClusterNums:
+    type: int
+    low: 10
+    high: 1000
+    log: True
+  temp:
+    type: float
+    low: 1e-1
+    high: 1e+1
     log: True
 
 # TRAINER
