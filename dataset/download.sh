@@ -63,6 +63,14 @@ function AMAZON_M2 () {
     fi
 }
 
+function Epinions () {
+    if [ ! -e "Epinions/soc-Epinions1.txt" ]; then
+        mkdir -p Epinions
+        wget -P Epinions https://snap.stanford.edu/data/soc-Epinions1.txt.gz
+        gunzip Epinions/soc-Epinions1.txt.gz
+    fi
+}
+
 if [ $1 = "INIT" ]; then
     ls | grep -v -E 'download.sh' | xargs rm -r
 elif [ $1 = "ML100K" ]; then
@@ -81,6 +89,8 @@ elif [ $1 = "DIGINETICA" ]; then
     DIGINETICA
 elif [ $1 = "AMAZON_M2" ]; then
     AMAZON_M2
+elif [ $1 = "Epinions" ]; then
+    Epinions
 elif [ $1 = "ALL" ]; then
     ML100K
     ML1M
