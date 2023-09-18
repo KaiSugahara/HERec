@@ -40,7 +40,8 @@ class train_test:
             return HE_MF(
                 user_num=self.reader.user_num,
                 item_num=self.reader.item_num,
-                clusterNums=[hyparam["model"].pop("clusterNums")],
+                userClusterNums=[hyparam["model"].pop("userClusterNums")],
+                itemClusterNums=[hyparam["model"].pop("itemClusterNums")],
                 **hyparam["model"]
             )
         
@@ -59,7 +60,8 @@ class train_test:
             return HE_FM(
                 user_num=self.reader.user_num,
                 item_num=self.reader.item_num,
-                clusterNums=[hyparam["model"].pop("clusterNums")],
+                userClusterNums=[hyparam["model"].pop("userClusterNums")],
+                itemClusterNums=[hyparam["model"].pop("itemClusterNums")],
                 **hyparam["model"]
             )
         
