@@ -3,11 +3,23 @@ from flax import linen as nn
 import jax.numpy as jnp
 from typing import Sequence
 
+def softmax_with_temp(x, temp, axis=-1, where=None, initial=None):
+
+    """
+        func:
+            Softmax with Temperature
+    """
+        
+    x_max = jnp.max(x, axis, where=where, initial=initial, keepdims=True)
+    unnormalized = jnp.exp((x - jax.lax.stop_gradient(x_max)) / temp)
+    return unnormalized / jnp.sum(unnormalized, axis, where=where, keepdims=True)
+
 class HE(nn.Module):
 
     objNum: int
     clusterNums: Sequence[int]
     embedDim: int
+    temp: float
 
     def setup( self ):
 
@@ -36,7 +48,7 @@ class HE(nn.Module):
                     Embedding matrix with rows corresponding to target object embeddings
         """
 
-        return nn.softmax(self.connectionMatrix[1][ids]) @ self.getEmbedByLevel(1)
+        return softmax_with_temp(self.connectionMatrix[1][ids], self.temp) @ self.getEmbedByLevel(1)
 
     def getConnectionMatrix( self, level: int ):
 
@@ -53,7 +65,7 @@ class HE(nn.Module):
                 The output matrix is normalized by softmax row by row to imply a stochastic transition matrix
         """
 
-        return nn.softmax(self.connectionMatrix[level])
+        return softmax_with_temp(self.connectionMatrix[level], self.temp)
 
     def getEmbedByLevel( self, level: int ):
 
