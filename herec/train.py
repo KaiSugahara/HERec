@@ -115,6 +115,10 @@ class train:
             reader = ML10M()
         elif self.dataset_name == "ML25M":
             reader = ML25M()
+        elif self.dataset_name == "Ciao":
+            reader = Ciao()
+        elif self.dataset_name == "Ciao_PART":
+            reader = Ciao_PART()
 
         self.DATA = reader.VALIDATION[self.seed].copy()
         print("shape of df_TRAIN:", self.DATA["df_TRAIN"].shape)

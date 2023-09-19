@@ -16,7 +16,7 @@ parser.add_argument(
 )
 parser.add_argument(
     '-d', "--dataset",
-    choices=["ML100K", "ML1M", "ML10M", "ML25M"],
+    choices=["ML100K", "ML1M", "ML10M", "ML25M", "Ciao", "Ciao_PART"],
     help='a dataset to be trained and tested',
     required=True,
     nargs="+",

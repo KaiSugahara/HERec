@@ -71,6 +71,22 @@ function Epinions () {
     fi
 }
 
+function Ciao () {
+    if [ ! -e "Ciao/ciao_with_rating_timestamp/rating_with_timestamp.mat" ]; then
+        wget https://www.cse.msu.edu/~tangjili/datasetcode/ciao_with_rating_timestamp.zip
+        unzip -d Ciao ciao_with_rating_timestamp.zip
+        rm ciao_with_rating_timestamp.zip
+    fi
+}
+
+function Ciao_PART () {
+    if [ ! -e "Ciao_PART/ciao_with_rating_timestamp_txt/rating_with_timestamp.txt" ]; then
+        wget https://www.cse.msu.edu/~tangjili/datasetcode/ciao_with_rating_timestamp_txt.zip
+        unzip -d Ciao_PART ciao_with_rating_timestamp_txt.zip
+        rm ciao_with_rating_timestamp_txt.zip
+    fi
+}
+
 if [ $1 = "INIT" ]; then
     ls | grep -v -E 'download.sh' | xargs rm -r
 elif [ $1 = "ML100K" ]; then
@@ -91,15 +107,19 @@ elif [ $1 = "AMAZON_M2" ]; then
     AMAZON_M2
 elif [ $1 = "Epinions" ]; then
     Epinions
-elif [ $1 = "ALL" ]; then
-    ML100K
-    ML1M
-    ML10M
-    ML25M
-    # BookCrossing
-    # Amazon
-    DIGINETICA
-    AMAZON_M2
+elif [ $1 = "Ciao" ]; then
+    Ciao
+elif [ $1 = "Ciao_PART" ]; then
+    Ciao_PART
+# elif [ $1 = "ALL" ]; then
+#     ML100K
+#     ML1M
+#     ML10M
+#     ML25M
+#     # BookCrossing
+#     # Amazon
+#     DIGINETICA
+#     AMAZON_M2
 else
     echo "Invalid Argument"
 fi
