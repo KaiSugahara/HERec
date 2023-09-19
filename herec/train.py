@@ -3,7 +3,7 @@ import mlflow
 import optuna
 from herec.reader import *
 
-class train_test:
+class train:
 
     def set_helper(self):
 

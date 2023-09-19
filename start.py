@@ -1,7 +1,7 @@
 import argparse
 
 from herec.utils import *
-from herec.train_test import train_test
+from herec.train import train
 
 """
     0. Parse Input Arguments
@@ -46,7 +46,7 @@ suggester = hyParamSuggester(args.config)
 for dataset_name in args.dataset:
     for seed in args.seed:
 
-        train_test(
+        train(
             model_name = args.model,
             dataset_name = dataset_name,
             suggester = suggester,
