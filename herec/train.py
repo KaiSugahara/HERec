@@ -91,6 +91,7 @@ class train:
             trainer = self.targetTrainer(model=model, dataLoader=self.targetLoader, run=run, ckpt_dir="../checkpoint/", verbose=1, **hyparam["trainer"])
             trainer.fit(self.DATA["df_TRAIN"], self.DATA["df_VALID"])
             trainer.clear_cache()
+            print()
         
             # Get Best Validation Loss
             best_valid_loss = trainer.score( trainer.get_best_params(), self.DATA["df_VALID"] )
@@ -112,6 +113,8 @@ class train:
             reader = ML25M()
 
         self.DATA = reader.VALIDATION[self.seed].copy()
+        print("shape of df_TRAIN:", self.DATA["df_TRAIN"].shape)
+        print("shape of df_VALID:", self.DATA["df_VALID"].shape)
 
     def setup_mlflow(self):
 
@@ -146,11 +149,11 @@ class train:
         # Set helper(s)
         self.set_helper()
 
-        # Load Dataset for Validation
-        self.load_dataset()
-
         # Setup MLflow
         self.setup_mlflow()
+
+        # Load Dataset for Validation
+        self.load_dataset()
 
         # TPE
         study = optuna.create_study( sampler=optuna.samplers.TPESampler(seed=self.seed) )
