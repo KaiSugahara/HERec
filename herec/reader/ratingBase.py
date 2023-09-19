@@ -1,38 +1,110 @@
 import polars as pl
 from sklearn.model_selection import train_test_split
+import numpy as np
 
 class ratingBase():
 
-    def __split(self):
+    def __prepocessingForValidation(self, fold_id):
 
-        df_SUBSET = {}
-        df_SUBSET["TRAIN"], df_SUBSET["TEST"] = train_test_split(self.df_RAW, test_size=0.2, shuffle=False)
-        df_SUBSET["TRAIN"], df_SUBSET["VALID"] = train_test_split(df_SUBSET["TRAIN"], test_size=0.2, shuffle=False)
+        # Clone
+        df_TRAIN = self._df_SUBSET[fold_id]["TRAIN"].clone()
+        df_VALID = self._df_SUBSET[fold_id]["VALID"].clone()
 
-        # Remove Cold Users/Items from VALID & TEST subset
-        for name in ["VALID", "TEST"]:
-            df_SUBSET[name] = df_SUBSET[name].filter(
-                pl.col("user_id").is_in( df_SUBSET["TRAIN"].get_column("user_id").unique() )
-                & pl.col("item_id").is_in( df_SUBSET["TRAIN"].get_column("item_id").unique() )
-            )
-        
+        # Remove Cold Users/Items from VALID subset
+        df_VALID = df_VALID.filter(
+            pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique() )
+        ).filter(
+            pl.col("item_id").is_in( df_TRAIN.get_column("item_id").unique() )
+        )
+
         # Reset IDs
-        user_ids = pl.concat(df_SUBSET.values()).get_column("user_id").unique(maintain_order=True)
+        user_ids = pl.concat([df_TRAIN, df_VALID]).get_column("user_id").unique(maintain_order=True)
         user_id_map = dict(zip(user_ids, range(len(user_ids))))
-        item_ids = pl.concat(df_SUBSET.values()).get_column("item_id").unique(maintain_order=True)
+        item_ids = pl.concat([df_TRAIN, df_VALID]).get_column("item_id").unique(maintain_order=True)
         item_id_map = dict(zip(item_ids, range(len(item_ids))))
-        for name in ["TRAIN", "VALID", "TEST"]:
-            df_SUBSET[name] = df_SUBSET[name].with_columns(
-                pl.col("user_id").map_dict(user_id_map),
-                pl.col("item_id").map_dict(item_id_map),
-            )
+        df_TRAIN = df_TRAIN.with_columns(
+            pl.col("user_id").map_dict(user_id_map),
+            pl.col("item_id").map_dict(item_id_map),
+        )
+        df_VALID = df_VALID.with_columns(
+            pl.col("user_id").map_dict(user_id_map),
+            pl.col("item_id").map_dict(item_id_map),
+        )
 
         # Set Variables
-        self.df_SUBSET = df_SUBSET
-        self.user_id_map = user_id_map
-        self.item_id_map = item_id_map
-        self.user_num = len(user_id_map)
-        self.item_num = len(item_id_map)
+        self.VALIDATION[fold_id] = {
+            "df_TRAIN": df_TRAIN,
+            "df_VALID": df_VALID,
+            "user_id_map": user_id_map,
+            "item_id_map": item_id_map,
+            "user_num": len(user_id_map),
+            "item_num": len(item_id_map),
+        }
+
+        return self
+    
+    def __prepocessingForTest(self, fold_id):
+
+        # Clone
+        df_TRAIN = pl.concat([ self._df_SUBSET[fold_id]["TRAIN"], self._df_SUBSET[fold_id]["VALID"] ])
+        df_TEST = self._df_SUBSET[fold_id]["TEST"].clone()
+
+        # Remove Cold Users/Items from TEST subset
+        df_TEST = df_TEST.filter(
+            pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique() )
+        ).filter(
+            pl.col("item_id").is_in( df_TRAIN.get_column("item_id").unique() )
+        )
+
+        # Reset IDs
+        user_ids = pl.concat([df_TEST, df_TEST]).get_column("user_id").unique(maintain_order=True)
+        user_id_map = dict(zip(user_ids, range(len(user_ids))))
+        item_ids = pl.concat([df_TEST, df_TEST]).get_column("item_id").unique(maintain_order=True)
+        item_id_map = dict(zip(item_ids, range(len(item_ids))))
+        df_TRAIN = df_TRAIN.with_columns(
+            pl.col("user_id").map_dict(user_id_map),
+            pl.col("item_id").map_dict(item_id_map),
+        )
+        df_TEST = df_TEST.with_columns(
+            pl.col("user_id").map_dict(user_id_map),
+            pl.col("item_id").map_dict(item_id_map),
+        )
+
+        # Set Variables
+        self.TEST[fold_id] = {
+            "df_TRAIN": df_TRAIN,
+            "df_TEST": df_TEST,
+            "user_id_map": user_id_map,
+            "item_id_map": item_id_map,
+            "user_num": len(user_id_map),
+            "item_num": len(item_id_map),
+        }
+
+        return self
+
+    def __split(self):
+
+        # Initialize
+        self.VALIDATION = {}
+        self.TEST = {}
+
+        # Split Data Indices to 10 subsets
+        subset_indices = np.array_split(range(self.df_RAW.height), 10)
+
+        # Split Data Indices to 3 folds under temporal splitting and CV
+        self._df_SUBSET = {
+            fold_id: {
+                "TRAIN": self.df_RAW[np.concatenate(subset_indices[fold_id:fold_id+6])],
+                "VALID": self.df_RAW[subset_indices[fold_id+6]],
+                "TEST": self.df_RAW[subset_indices[fold_id+7]],
+            }
+            for fold_id in [0, 1, 2]
+        }
+
+        # Preprocessing
+        for fold_id in [0, 1, 2]:
+            self.__prepocessingForValidation(fold_id)
+            self.__prepocessingForTest(fold_id)
 
         return self
 
