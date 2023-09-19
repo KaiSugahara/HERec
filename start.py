@@ -33,6 +33,10 @@ parser.add_argument(
     type=int,
     nargs="+",
 )
+parser.add_argument(
+    "--memo",
+    help='memo stored in MLflow run',
+)
 args = parser.parse_args()
 
 """
@@ -51,4 +55,5 @@ for dataset_name in args.dataset:
             dataset_name = dataset_name,
             suggester = suggester,
             seed = seed,
+            memo = args.memo,
         )

@@ -83,6 +83,10 @@ class train:
             mlflow.log_params(hyparam["model"])
             mlflow.log_params(hyparam["trainer"])
             mlflow.log_dict(hyparam, "params.json")
+
+            # Save memo to MLFlow
+            if self.memo is not None:
+                mlflow.set_tag('memo', self.memo)
         
             # Define Model
             model = self.generate_model(hyparam)
@@ -129,7 +133,7 @@ class train:
         print("実験名:", EXPERIMENT_NAME)
         print("実験ID:", self.experiment_id)
 
-    def __init__(self, model_name, dataset_name, suggester, seed):
+    def __init__(self, model_name, dataset_name, suggester, seed, memo=None):
 
         """
             func: training and testing of specified model on a dataset
@@ -145,6 +149,7 @@ class train:
         self.dataset_name = dataset_name
         self.suggester = suggester
         self.seed = seed
+        self.memo = memo
 
         # Set helper(s)
         self.set_helper()
