@@ -1,5 +1,7 @@
+from dotenv import load_dotenv
 import mlflow
 import optuna
+from herec.reader import *
 
 class train_test:
 
@@ -29,8 +31,8 @@ class train_test:
             
             from herec.model import MF
             return MF(
-                user_num=self.reader.user_num,
-                item_num=self.reader.item_num,
+                user_num=self.DATA["user_num"],
+                item_num=self.DATA["item_num"],
                 **hyparam["model"]
             )
 
@@ -38,8 +40,8 @@ class train_test:
 
             from herec.model import HE_MF
             return HE_MF(
-                user_num=self.reader.user_num,
-                item_num=self.reader.item_num,
+                user_num=self.DATA["user_num"],
+                item_num=self.DATA["item_num"],
                 userClusterNums=[hyparam["model"].pop("userClusterNums")],
                 itemClusterNums=[hyparam["model"].pop("itemClusterNums")],
                 **hyparam["model"]
@@ -49,8 +51,8 @@ class train_test:
 
             from herec.model import FM
             return FM(
-                user_num=self.reader.user_num,
-                item_num=self.reader.item_num,
+                user_num=self.DATA["user_num"],
+                item_num=self.DATA["item_num"],
                 **hyparam["model"]
             )
 
@@ -58,8 +60,8 @@ class train_test:
 
             from herec.model import HE_FM
             return HE_FM(
-                user_num=self.reader.user_num,
-                item_num=self.reader.item_num,
+                user_num=self.DATA["user_num"],
+                item_num=self.DATA["item_num"],
                 userClusterNums=[hyparam["model"].pop("userClusterNums")],
                 itemClusterNums=[hyparam["model"].pop("itemClusterNums")],
                 **hyparam["model"]
@@ -87,44 +89,68 @@ class train_test:
 
             # Train
             trainer = self.targetTrainer(model=model, dataLoader=self.targetLoader, run=run, ckpt_dir="../checkpoint/", verbose=1, **hyparam["trainer"])
-            trainer.fit(self.reader.df_SUBSET["TRAIN"], self.reader.df_SUBSET["VALID"])
+            trainer.fit(self.DATA["df_TRAIN"], self.DATA["df_VALID"])
             trainer.clear_cache()
         
             # Get Best Validation Loss
-            best_valid_loss = trainer.score( trainer.get_best_params(), self.reader.df_SUBSET["VALID"] )
+            best_valid_loss = trainer.score( trainer.get_best_params(), self.DATA["df_VALID"] )
 
             # Save Best Valid. Loss to MLFlow
             mlflow.log_metric("BEST_VALID_LOSS", best_valid_loss)
 
-            # Get Test Loss
-            test_loss = trainer.score( trainer.get_best_params(), self.reader.df_SUBSET["TEST"] )
-
-            # Save Test Loss to MLFlow
-            mlflow.log_metric("TEST_LOSS", test_loss)
-
         return best_valid_loss
+    
+    def load_dataset(self):
 
-    def __init__(self, model_name, reader, suggester, seed, experiment_id):
+        if self.dataset_name == "ML100K":
+            reader = ML100K()
+        elif self.dataset_name == "ML1M":
+            reader = ML1M()
+        elif self.dataset_name == "ML10M":
+            reader = ML10M()
+        elif self.dataset_name == "ML25M":
+            reader = ML25M()
+
+        self.DATA = reader.VALIDATION[self.seed].copy()
+
+    def setup_mlflow(self):
+
+        load_dotenv(".env")
+
+        EXPERIMENT_NAME = f"HeRec-{self.model_name}-{self.dataset_name}"
+        if (experiment := mlflow.get_experiment_by_name(EXPERIMENT_NAME)) is None:
+            self.experiment_id = mlflow.create_experiment(name=EXPERIMENT_NAME)
+        else:
+            self.experiment_id = experiment.experiment_id
+
+        print("実験名:", EXPERIMENT_NAME)
+        print("実験ID:", self.experiment_id)
+
+    def __init__(self, model_name, dataset_name, suggester, seed):
 
         """
             func: training and testing of specified model on a dataset
             args:
                 model_name: name of model
-                reader: reader of dataset
+                dataset_name: name of dataset
                 suggester: suggester of hyperparameter
                 seed: seed of optune and model initializer
-                experiment_id: experiment id of MLflow
         """
 
         # Set args.
         self.model_name = model_name
-        self.reader = reader
+        self.dataset_name = dataset_name
         self.suggester = suggester
         self.seed = seed
-        self.experiment_id = experiment_id
 
         # Set helper(s)
         self.set_helper()
+
+        # Load Dataset for Validation
+        self.load_dataset()
+
+        # Setup MLflow
+        self.setup_mlflow()
 
         # TPE
         study = optuna.create_study( sampler=optuna.samplers.TPESampler(seed=self.seed) )
