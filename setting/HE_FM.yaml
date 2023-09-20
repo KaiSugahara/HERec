@@ -5,16 +5,16 @@ model:
     low: 10
     high: 1000
     log: True
-  userClusterNums:
-    type: int
-    low: 10
-    high: 1000
-    log: True
-  itemClusterNums:
-    type: int
-    low: 10
-    high: 1000
-    log: True
+  userClusterNumProps:
+    type: float
+    low: 0
+    high: 1
+    log: False
+  itemClusterNumProps:
+    type: float
+    low: 0
+    high: 1
+    log: False
   temp:
     type: float
     low: 1e-1

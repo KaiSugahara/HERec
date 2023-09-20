@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import mlflow
+import math
 import optuna
 from herec.reader import *
 
@@ -42,8 +43,8 @@ class train:
             return HE_MF(
                 user_num=self.DATA["user_num"],
                 item_num=self.DATA["item_num"],
-                userClusterNums=[hyparam["model"].pop("userClusterNums")],
-                itemClusterNums=[hyparam["model"].pop("itemClusterNums")],
+                userClusterNums=[max(math.ceil(self.DATA["user_num"] * hyparam["model"].pop("userClusterNumProps")), 1)],
+                itemClusterNums=[max(math.ceil(self.DATA["item_num"] * hyparam["model"].pop("itemClusterNumProps")), 1)],
                 **hyparam["model"]
             )
         
@@ -62,8 +63,8 @@ class train:
             return HE_FM(
                 user_num=self.DATA["user_num"],
                 item_num=self.DATA["item_num"],
-                userClusterNums=[hyparam["model"].pop("userClusterNums")],
-                itemClusterNums=[hyparam["model"].pop("itemClusterNums")],
+                userClusterNums=[max(math.ceil(self.DATA["user_num"] * hyparam["model"].pop("userClusterNumProps")), 1)],
+                itemClusterNums=[max(math.ceil(self.DATA["item_num"] * hyparam["model"].pop("itemClusterNumProps")), 1)],
                 **hyparam["model"]
             )
         
@@ -121,8 +122,16 @@ class train:
             reader = Ciao_PART()
 
         self.DATA = reader.VALIDATION[self.seed].copy()
+
+        # Print Statistics
         print("shape of df_TRAIN:", self.DATA["df_TRAIN"].shape)
         print("shape of df_VALID:", self.DATA["df_VALID"].shape)
+        if "user_num" in self.DATA.keys():
+            print("User #:", self.DATA["user_num"])
+        if "item_num" in self.DATA.keys():
+            print("Item #:", self.DATA["item_num"])
+        
+        return self
 
     def setup_mlflow(self):
 
@@ -136,6 +145,8 @@ class train:
 
         print("実験名:", EXPERIMENT_NAME)
         print("実験ID:", self.experiment_id)
+
+        return self
 
     def __init__(self, model_name, dataset_name, suggester, seed, memo=None):
 
