@@ -3,6 +3,7 @@ import mlflow
 import math
 import optuna
 from herec.reader import *
+from herec.utils import getRepositoryPath
 
 class train:
 
@@ -93,7 +94,7 @@ class train:
             model = self.generate_model(hyparam)
 
             # Train
-            trainer = self.targetTrainer(model=model, dataLoader=self.targetLoader, run=run, ckpt_dir="../checkpoint/", verbose=1, **hyparam["trainer"])
+            trainer = self.targetTrainer(model=model, dataLoader=self.targetLoader, run=run, ckpt_dir=f"{getRepositoryPath()}/checkpoint/", verbose=1, **hyparam["trainer"])
             trainer.fit(self.DATA["df_TRAIN"], self.DATA["df_VALID"])
             trainer.clear_cache()
             print()
