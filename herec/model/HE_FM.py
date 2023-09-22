@@ -11,7 +11,6 @@ class HE_FM(nn.Module):
     userClusterNums: list
     itemClusterNums: list
     embedDim: int
-    temp: float
 
     def setup(self):
 
@@ -19,14 +18,12 @@ class HE_FM(nn.Module):
             objNum = self.user_num,
             clusterNums = self.userClusterNums,
             embedDim = self.embedDim,
-            temp = self.temp,
         )
 
         self.itemEmbedder = HE(
             objNum = self.item_num,
             clusterNums = self.itemClusterNums,
             embedDim = self.embedDim,
-            temp = self.temp,
         )
     
     @nn.compact
