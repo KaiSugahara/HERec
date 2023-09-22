@@ -44,8 +44,8 @@ class train:
             return HE_MF(
                 user_num=self.DATA["user_num"],
                 item_num=self.DATA["item_num"],
-                userClusterNums=[max(math.ceil(num := (self.DATA["user_num"] * hyparam["model"].pop("userClusterNumProp"))), 1)] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("userHierarchyDepth"))],
-                itemClusterNums=[max(math.ceil(num := (self.DATA["item_num"] * hyparam["model"].pop("itemClusterNumProp"))), 1)] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("itemHierarchyDepth"))],
+                userClusterNums=[num := hyparam["model"].pop("userClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("userHierarchyDepth"))],
+                itemClusterNums=[num := hyparam["model"].pop("itemClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("itemHierarchyDepth"))],
                 **hyparam["model"],
             )
         
@@ -64,8 +64,8 @@ class train:
             return HE_FM(
                 user_num=self.DATA["user_num"],
                 item_num=self.DATA["item_num"],
-                userClusterNums=[max(math.ceil(num := (self.DATA["user_num"] * hyparam["model"].pop("userClusterNumProp"))), 1)] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("userHierarchyDepth"))],
-                itemClusterNums=[max(math.ceil(num := (self.DATA["item_num"] * hyparam["model"].pop("itemClusterNumProp"))), 1)] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("itemHierarchyDepth"))],
+                userClusterNums=[num := hyparam["model"].pop("userClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("userHierarchyDepth"))],
+                itemClusterNums=[num := hyparam["model"].pop("itemClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("itemHierarchyDepth"))],
                 **hyparam["model"]
             )
         
