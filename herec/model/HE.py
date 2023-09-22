@@ -80,8 +80,8 @@ class HE(nn.Module):
                     Embedding matrix with rows corresponding to target node embeddings
         """
 
-        if (self.depth == level): return self.rootMatrix
+        if (self.depth == level):
+            return self.rootMatrix
 
-        return jnp.linalg.multi_dot(
-            [self.getConnectionMatrix(l) for l in range(level+1, self.depth+1)] + [self.rootMatrix]
-        )
+        else:
+            return self.getConnectionMatrix( level+1 ) @ self.getEmbedByLevel( level+1 )
