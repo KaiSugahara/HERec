@@ -5,21 +5,26 @@ model:
     low: 10
     high: 1000
     log: True
-  userClusterNumProps:
+  userHierarchyDepth:
+    type: int
+    low: 1
+    high: 3
+    log: False
+  userClusterNumProp:
     type: float
     low: 0
-    high: 1
+    high: 0.1
     log: False
-  itemClusterNumProps:
+  itemHierarchyDepth:
+    type: int
+    low: 1
+    high: 3
+    log: False
+  itemClusterNumProp:
     type: float
     low: 0
-    high: 1
+    high: 0.1
     log: False
-  temp:
-    type: float
-    low: 1e-1
-    high: 1e+1
-    log: True
 
 # TRAINER
 trainer:
