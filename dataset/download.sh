@@ -87,6 +87,21 @@ function Ciao_PART () {
     fi
 }
 
+function LFM2B_1MON () {
+    if [ ! -e "LFM2B_1MON/listening_events.tsv" ]; then
+        mkdir -p LFM2B_1MON
+        wget -P LFM2B_1MON http://www.cp.jku.at/datasets/LFM-2b/recsys22/listening_events.tsv.bz2
+        bzip2 -d LFM2B_1MON/listening_events.tsv.bz2
+    fi
+}
+
+function Twitch100K () {
+    if [ ! -e "Twitch100K/100k_a.csv" ]; then
+        mkdir -p Twitch100K
+        wget -P Twitch100K https://datarepo.eng.ucsd.edu/mcauley_group/gdrive/twitch/100k_a.csv
+    fi
+}
+
 if [ $1 = "INIT" ]; then
     ls | grep -v -E 'download.sh' | xargs rm -r
 elif [ $1 = "ML100K" ]; then
@@ -111,6 +126,10 @@ elif [ $1 = "Ciao" ]; then
     Ciao
 elif [ $1 = "Ciao_PART" ]; then
     Ciao_PART
+elif [ $1 = "LFM2B_1MON" ]; then
+    LFM2B_1MON
+elif [ $1 = "Twitch100K" ]; then
+    Twitch100K
 # elif [ $1 = "ALL" ]; then
 #     ML100K
 #     ML1M
