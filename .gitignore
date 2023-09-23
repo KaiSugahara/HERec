@@ -5,3 +5,4 @@ __pycache__
 /checkpoint
 mlruns
 .env
+dev.ipynb
