@@ -118,7 +118,7 @@ class baseTrainer:
         # Calc. Validation Score
         if df_VALID is not None:
 
-            if hasattr(self, 'calc_current_custom_score'):
+            if hasattr(self, 'custom_score'):
                 # Calc. Custom Score
                 self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.custom_score(self.state.params, df_VALID, epoch_idx))
             else:
