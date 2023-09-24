@@ -31,6 +31,11 @@ class implicitBase():
             pl.col("item_id").map_dict(item_id_map),
         )
 
+        # Aggregate Item IDs for VALID subset
+        df_VALID = df_VALID.group_by(["user_id"]).agg("item_id").with_columns(
+            pl.col("item_id").list.unique()
+        )
+
         # Set Variables
         self.VALIDATION[fold_id] = {
             "df_TRAIN": df_TRAIN,
@@ -68,6 +73,11 @@ class implicitBase():
         df_TEST = df_TEST.with_columns(
             pl.col("user_id").map_dict(user_id_map),
             pl.col("item_id").map_dict(item_id_map),
+        )
+
+        # Aggregate Item IDs for TEST subset
+        df_TEST = df_TEST.group_by(["user_id"]).agg("item_id").with_columns(
+            pl.col("item_id").list.unique()
         )
 
         # Set Variables
