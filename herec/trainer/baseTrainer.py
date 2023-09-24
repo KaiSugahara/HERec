@@ -122,10 +122,6 @@ class baseTrainer:
             self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.score(self.state.params, df_VALID))
             mlflow.log_metric("VALID_LOSS", loss, step=epoch_idx+1)    # MLFlowに保存
 
-        # カスタムスコアを計算
-        if hasattr(self, 'calc_current_custom_score'):
-            self.calc_current_custom_score(epoch_idx, df_TRAIN, df_VALID)
-
         # Print
         if self.verbose > 0:
             print(f"\r[Epoch {epoch_idx+1}/{self.epoch_nums}]", end=" ")
