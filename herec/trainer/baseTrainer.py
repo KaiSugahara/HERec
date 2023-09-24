@@ -115,12 +115,18 @@ class baseTrainer:
                 - df_VALID: 検証入力データ
         """
 
-        print_objects = []
-
-        # 検証ロスを計算
+        # Calc. Validation Score
         if df_VALID is not None:
-            self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.score(self.state.params, df_VALID))
-            mlflow.log_metric("VALID_LOSS", loss, step=epoch_idx+1)    # MLFlowに保存
+
+            if hasattr(self, 'calc_current_custom_score'):
+                # Calc. Custom Score
+                self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.custom_score(self.state.params, df_VALID, epoch_idx))
+            else:
+                # Calc. Loss as Score
+                self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.score(self.state.params, df_VALID))
+            
+            # Save Score to MLflow
+            mlflow.log_metric("VALID_LOSS", loss, step=epoch_idx+1)
 
         # Print
         if self.verbose > 0:
