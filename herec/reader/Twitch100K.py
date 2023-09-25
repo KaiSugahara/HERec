@@ -13,7 +13,7 @@ class Twitch100K(implicitBase):
             pl.col("column_3").alias("item_id"),
             pl.col("column_4").alias("timestamp")
         ).unique()
-        df_RAW = df_RAW.sort("timestamp")
+        df_RAW = df_RAW.sort("timestamp", "user_id", "item_id")
 
         # Set Variables
         self.df_RAW = df_RAW
