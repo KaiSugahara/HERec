@@ -29,6 +29,17 @@ class baseTrainer:
 
         return sorted(self.loss_history.items(), key=(lambda tup: tup[1]["VALID_LOSS"]))[0][0]
     
+    def get_best_score(self):
+
+        """
+            func: search best validation score from history
+            args: None
+            returns:
+                score
+        """
+
+        return min([l["VALID_LOSS"] for l in self.loss_history.values()])
+    
     def get_best_params(self):
 
         """

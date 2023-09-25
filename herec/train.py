@@ -11,17 +11,42 @@ class train:
 
         if self.model_name in ["MF", "HE_MF", "FM", "HE_FM"]:
 
-            # DataLoader
-            from herec.loader import ratingLoader as targetLoader
             # Trainer
             from herec.trainer import ratingTrainer as targetTrainer
+
+        elif self.model_name in ["MF_BPR", "HE_MF_BPR"]:
+
+            # Trainer
+            from herec.trainer import bprTrainer as targetTrainer
+
+        else:
+            
+            raise Exception()
+        
+        self.targetTrainer = targetTrainer
+
+        return self
+
+    def set_loader(self, hyparam):
+
+        if self.model_name in ["MF", "HE_MF", "FM", "HE_FM"]:
+
+            # DataLoader
+            from herec.loader import ratingLoader as targetLoader
+
+        elif self.model_name in ["MF_BPR", "HE_MF_BPR"]:
+
+            # DataLoader
+            from herec.loader import implicitLoader as targetLoader
+            targetLoader.n_neg = hyparam["loader"]["n_neg"]
 
         else:
             
             raise Exception()
         
         self.targetLoader = targetLoader
-        self.targetTrainer = targetTrainer
+
+        return self
 
     def generate_model(self, hyparam):
 
@@ -29,7 +54,7 @@ class train:
             func: generate a model from model class
         """
 
-        if self.model_name == "MF":
+        if self.model_name in ["MF", "MF_BPR"]:
             
             from herec.model import MF
             return MF(
@@ -38,7 +63,7 @@ class train:
                 **hyparam["model"]
             )
 
-        if self.model_name == "HE_MF":
+        if self.model_name in ["HE_MF", "HE_MF_BPR"]:
 
             from herec.model import HE_MF
             return HE_MF(
@@ -84,6 +109,8 @@ class train:
             # Save Hyper-parameter to MLFlow
             mlflow.log_params(hyparam["model"])
             mlflow.log_params(hyparam["trainer"])
+            if "loader" in hyparam.keys():
+                mlflow.log_params(hyparam["loader"])
             mlflow.log_dict(hyparam, "params.json")
 
             # Save memo to MLFlow
@@ -93,6 +120,9 @@ class train:
             # Define Model
             model = self.generate_model(hyparam)
 
+            # Set Loader
+            self.set_loader(hyparam)
+
             # Train
             trainer = self.targetTrainer(model=model, dataLoader=self.targetLoader, run=run, ckpt_dir=f"{getRepositoryPath()}/checkpoint/", verbose=1, **hyparam["trainer"])
             trainer.fit(self.DATA["df_TRAIN"], self.DATA["df_VALID"])
@@ -100,7 +130,7 @@ class train:
             print()
         
             # Get Best Validation Loss
-            best_valid_loss = trainer.score( trainer.get_best_params(), self.DATA["df_VALID"] )
+            best_valid_loss = trainer.get_best_score()
 
             # Save Best Valid. Loss to MLFlow
             mlflow.log_metric("BEST_VALID_LOSS", best_valid_loss)
@@ -121,6 +151,8 @@ class train:
             reader = Ciao()
         elif self.dataset_name == "Ciao_PART":
             reader = Ciao_PART()
+        elif self.dataset_name == "Twitch100K":
+            reader = Twitch100K()
 
         self.DATA = reader.VALIDATION[self.seed].copy()
 

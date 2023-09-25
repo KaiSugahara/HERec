@@ -10,13 +10,13 @@ from herec.train import train
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument(
     '-m', "--model",
-    choices=["MF", "HE_MF", "FM", "HE_FM"],
+    choices=["MF", "HE_MF", "FM", "HE_FM", "MF_BPR", "HE_MF_BPR"],
     help='name of the model to be trained and tested',
     required=True,
 )
 parser.add_argument(
     '-d', "--dataset",
-    choices=["ML100K", "ML1M", "ML10M", "ML25M", "Ciao", "Ciao_PART"],
+    choices=["ML100K", "ML1M", "ML10M", "ML25M", "Ciao", "Ciao_PART", "Twitch100K"],
     help='a dataset to be trained and tested',
     required=True,
     nargs="+",

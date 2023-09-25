@@ -16,7 +16,16 @@ class hyParamSuggester():
         raise Exception("Invalid Type")
 
     def suggest_hyparam(self, trial):
-        return dict(
-            model = {name: self.set_suggest_method(name, conf, trial) for name, conf in self.rawSetting["model"].items()},
-            trainer = {name: self.set_suggest_method(name, conf, trial) for name, conf in self.rawSetting["trainer"].items()},
-        )
+
+        hyparam = {}
+
+        if "model" in self.rawSetting.keys():
+            hyparam["model"] = {name: self.set_suggest_method(name, conf, trial) for name, conf in self.rawSetting["model"].items()}
+
+        if "trainer" in self.rawSetting.keys():
+            hyparam["trainer"] = {name: self.set_suggest_method(name, conf, trial) for name, conf in self.rawSetting["trainer"].items()}
+
+        if "loader" in self.rawSetting.keys():
+            hyparam["loader"] = {name: self.set_suggest_method(name, conf, trial) for name, conf in self.rawSetting["loader"].items()}
+
+        return hyparam
