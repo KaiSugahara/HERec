@@ -6,39 +6,6 @@ import random
 
 class implicitBase():
 
-    def __add_sampled_items(self, df, item_num, random_state):
-
-        random.seed(random_state)
-        
-        for i in trange(1000, desc="Sampling Items for Validation/Test Subset"):
-            
-            # Initialize
-            column_name = f"neg_item_id_{i}"
-            df = df.with_columns( pl.lit(-1).alias(column_name), dup_num=True )
-
-            while df.get_column("dup_num").any():
-                
-                seed = random.randint(0, 100000)
-                
-                # Sampling
-                df = df.with_columns(
-                    pl.when( pl.col("dup_num") )
-                    .then( pl.arange(0, item_num).sample(df.height, with_replacement=True, seed=seed).alias(column_name) )
-                    .otherwise( pl.col(column_name) )
-                )
-                # Check Duplicates between Positive and Negative Items
-                df = df.with_columns(
-                    pl.when( pl.col("dup_num") )
-                    .then( pl.col("true_item_ids").list.contains(pl.col(column_name)).alias("dup_num") )
-                    .otherwise( pl.col("dup_num") )
-                )
-        
-        return df.select(
-            "user_id",
-            "true_item_ids",
-            pl.concat_list("true_item_ids", "^neg_item_id_(\d+)$").alias("sampled_item_ids"),
-        )
-
     def __prepocessingForValidation(self, fold_id):
 
         # Clone
@@ -73,9 +40,6 @@ class implicitBase():
             pl.col("user_id"),
             pl.col("item_id").list.unique(maintain_order=True).alias("true_item_ids"),
         )
-
-        # Add Sampled Items to VALID subset
-        df_VALID = self.__add_sampled_items( df_VALID, item_num, fold_id )
 
         # Set Variables
         self.VALIDATION[fold_id] = {
@@ -123,9 +87,6 @@ class implicitBase():
             pl.col("user_id"),
             pl.col("item_id").list.unique(maintain_order=True).alias("true_item_ids"),
         )
-
-        # Add Sampled Items to VALID subset
-        df_TEST = self.__add_sampled_items( df_TEST, item_num, fold_id )
 
         # Set Variables
         self.TEST[fold_id] = {
