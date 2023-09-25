@@ -12,16 +12,18 @@ class implicitBase():
 
         # Remove Cold Users/Items from VALID subset
         df_VALID = df_VALID.filter(
-            pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique() )
+            pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique(maintain_order=True) )
         ).filter(
-            pl.col("item_id").is_in( df_TRAIN.get_column("item_id").unique() )
+            pl.col("item_id").is_in( df_TRAIN.get_column("item_id").unique(maintain_order=True) )
         )
 
         # Reset IDs
         user_ids = pl.concat([df_TRAIN, df_VALID]).get_column("user_id").unique(maintain_order=True)
         user_id_map = dict(zip(user_ids, range(len(user_ids))))
+        user_num = len(user_id_map)
         item_ids = pl.concat([df_TRAIN, df_VALID]).get_column("item_id").unique(maintain_order=True)
         item_id_map = dict(zip(item_ids, range(len(item_ids))))
+        item_num = len(item_id_map)
         df_TRAIN = df_TRAIN.with_columns(
             pl.col("user_id").map_dict(user_id_map),
             pl.col("item_id").map_dict(item_id_map),
@@ -32,8 +34,9 @@ class implicitBase():
         )
 
         # Aggregate Item IDs for VALID subset
-        df_VALID = df_VALID.group_by(["user_id"]).agg("item_id").with_columns(
-            pl.col("item_id").list.unique()
+        df_VALID = df_VALID.group_by(["user_id"], maintain_order=True).agg("item_id").select(
+            pl.col("user_id"),
+            pl.col("item_id").list.unique(maintain_order=True).alias("true_item_ids"),
         )
 
         # Set Variables
@@ -42,8 +45,8 @@ class implicitBase():
             "df_VALID": df_VALID,
             "user_id_map": user_id_map,
             "item_id_map": item_id_map,
-            "user_num": len(user_id_map),
-            "item_num": len(item_id_map),
+            "user_num": user_num,
+            "item_num": item_num,
         }
 
         return self
@@ -56,16 +59,18 @@ class implicitBase():
 
         # Remove Cold Users/Items from TEST subset
         df_TEST = df_TEST.filter(
-            pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique() )
+            pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique(maintain_order=True) )
         ).filter(
-            pl.col("item_id").is_in( df_TRAIN.get_column("item_id").unique() )
+            pl.col("item_id").is_in( df_TRAIN.get_column("item_id").unique(maintain_order=True) )
         )
 
         # Reset IDs
         user_ids = pl.concat([df_TEST, df_TEST]).get_column("user_id").unique(maintain_order=True)
         user_id_map = dict(zip(user_ids, range(len(user_ids))))
+        user_num = len(user_id_map)
         item_ids = pl.concat([df_TEST, df_TEST]).get_column("item_id").unique(maintain_order=True)
         item_id_map = dict(zip(item_ids, range(len(item_ids))))
+        item_num = len(item_id_map)
         df_TRAIN = df_TRAIN.with_columns(
             pl.col("user_id").map_dict(user_id_map),
             pl.col("item_id").map_dict(item_id_map),
@@ -76,8 +81,9 @@ class implicitBase():
         )
 
         # Aggregate Item IDs for TEST subset
-        df_TEST = df_TEST.group_by(["user_id"]).agg("item_id").with_columns(
-            pl.col("item_id").list.unique()
+        df_TEST = df_TEST.group_by(["user_id"], maintain_order=True).agg("item_id").select(
+            pl.col("user_id"),
+            pl.col("item_id").list.unique(maintain_order=True).alias("true_item_ids"),
         )
 
         # Set Variables
@@ -86,8 +92,8 @@ class implicitBase():
             "df_TEST": df_TEST,
             "user_id_map": user_id_map,
             "item_id_map": item_id_map,
-            "user_num": len(user_id_map),
-            "item_num": len(item_id_map),
+            "user_num": user_num,
+            "item_num": item_num,
         }
 
         return self
