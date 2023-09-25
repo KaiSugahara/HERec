@@ -5,6 +5,7 @@ import mlflow
 import polars as pl
 import numpy as np
 from collections import defaultdict
+from tqdm import tqdm
 
 from functools import partial
 
@@ -14,28 +15,20 @@ class bprTrainer(baseTrainer):
 
     @partial(jax.jit, static_argnums=0)
     def __calc_top100_items(self, params, user_id):
-
-        # Make Matrix for Prediction
-        X = jnp.array([
-            [user_id] * self.model.item_num,
-            jnp.arange(self.model.item_num)
-        ]).T
-        
+    
         # Predict Scores for All Items
-        Y = self.model.apply({"params": params}, X)
+        Y = self.model.apply({"params": params}, user_id, method=self.model.get_all_scores_by_user_id)
         
-        # Select Items with Top100 Scores
-        Y = (-Y).argsort(axis=0)
-        Y = Y[:100].reshape(-1)
-        
-        return Y
+        # Top Rows
+        pred_items = (-Y).argsort(axis=0)[:100]
+
+        return pred_items
     
     def custom_score(self, params, df_VALID, epoch_idx):
 
         # Initialize
         metrics = defaultdict(list)
 
-        from tqdm import tqdm
         # Calc. Metrics for all Users in Valid. Subset
         for user_id, true_items in tqdm(df_VALID.iter_rows()):
 
