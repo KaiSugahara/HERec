@@ -12,6 +12,10 @@ class implicitBase():
         df_TRAIN = self._df_SUBSET[fold_id]["TRAIN"].clone()
         df_VALID = self._df_SUBSET[fold_id]["VALID"].clone()
 
+        # Leave First Interaction (Be Unique) for each subset
+        df_TRAIN = df_TRAIN.unique(["user_id", "item_id"])
+        df_VALID = df_VALID.unique(["user_id", "item_id"])
+
         # Remove Cold Users/Items from VALID subset
         df_VALID = df_VALID.filter(
             pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique(maintain_order=True) )
@@ -64,6 +68,10 @@ class implicitBase():
         # Clone
         df_TRAIN = pl.concat([ self._df_SUBSET[fold_id]["TRAIN"], self._df_SUBSET[fold_id]["VALID"] ])
         df_TEST = self._df_SUBSET[fold_id]["TEST"].clone()
+
+        # Leave First Interaction (Be Unique) for each subset
+        df_TRAIN = df_TRAIN.unique(["user_id", "item_id"])
+        df_TEST = df_TEST.unique(["user_id", "item_id"])
 
         # Remove Cold Users/Items from TEST subset
         df_TEST = df_TEST.filter(
