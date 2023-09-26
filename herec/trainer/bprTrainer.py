@@ -32,7 +32,7 @@ class bprTrainer(baseTrainer):
         # Extract Predicted Ranking
         pred_items = jnp.vstack([
             self.__calc_top_items(params, sub_user_ids)
-            for sub_user_ids in tqdm(jnp.array_split(user_ids, len(user_ids)//1024))
+            for sub_user_ids in tqdm(jnp.array_split(user_ids, len(user_ids)//1024), desc=f"[Eval. {epoch_idx+1}/{self.epoch_nums}]")
         ])
 
         # Extract True Item IDs in Valid. Subset
