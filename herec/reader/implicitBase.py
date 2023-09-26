@@ -117,14 +117,14 @@ class implicitBase():
     def __split(self):
 
         # Split Data Indices to 10 subsets
-        subset_indices = np.array_split(range(self.df_RAW.height), 10)
+        timestamp_subsets = np.array_split( self.df_RAW.get_column("timestamp").unique().sort(), 10 )
 
         # Split Data Indices to 3 folds under temporal splitting and CV
         self._df_SUBSET = {
             fold_id: {
-                "TRAIN": self.df_RAW[np.concatenate(subset_indices[fold_id:fold_id+6])],
-                "VALID": self.df_RAW[subset_indices[fold_id+6]],
-                "TEST": self.df_RAW[subset_indices[fold_id+7]],
+                "TRAIN": self.df_RAW.filter( pl.col("timestamp").is_in( np.hstack(timestamp_subsets[fold_id:fold_id+6]).tolist() ) ),
+                "VALID": self.df_RAW.filter( pl.col("timestamp").is_in( timestamp_subsets[fold_id+6].tolist() ) ),
+                "TEST": self.df_RAW.filter( pl.col("timestamp").is_in( timestamp_subsets[fold_id+7].tolist() ) ),
             }
             for fold_id in [0, 1, 2]
         }
