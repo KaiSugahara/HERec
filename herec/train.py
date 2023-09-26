@@ -153,6 +153,8 @@ class train:
             reader = Ciao_PART()
         elif self.dataset_name == "Twitch100K":
             reader = Twitch100K()
+        elif self.dataset_name == "DIGINETICA":
+            reader = DIGINETICA()
 
         self.DATA = reader.VALIDATION[self.seed].copy()
 
