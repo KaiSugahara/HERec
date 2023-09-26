@@ -58,4 +58,4 @@ loader:
     type: int
     low: 1
     high: 50
-    log: False
+    log: True
