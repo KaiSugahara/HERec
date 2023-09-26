@@ -23,10 +23,10 @@ class MF(nn.Module):
         V = self.itemEmbed(item_ids)
         
         return jnp.sum(U * V, axis=1, keepdims=True)
-    
+
     def get_all_scores_by_user_id(self, user_id):
 
         U = self.userEmbed(jnp.array([user_id]))
-        V = self.itemEmbed(jnp.arange(self.item_num))
-        
+        V = self.itemEmbed.embedding
+
         return jnp.sum(U * V, axis=1)
