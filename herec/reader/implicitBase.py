@@ -116,10 +116,6 @@ class implicitBase():
 
     def __split(self):
 
-        # Initialize
-        self.VALIDATION = {}
-        self.TEST = {}
-
         # Split Data Indices to 10 subsets
         subset_indices = np.array_split(range(self.df_RAW.height), 10)
 
@@ -144,6 +140,8 @@ class implicitBase():
         self.__split()
 
         # Preprocessing
+        self.VALIDATION = {} # Initialize
+        self.TEST = {} # Initialize
         for fold_id in [0, 1, 2]:
             self.__prepocessingForValidation(fold_id)
             self.__prepocessingForTest(fold_id)
