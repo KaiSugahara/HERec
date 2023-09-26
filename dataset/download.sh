@@ -102,6 +102,15 @@ function Twitch100K () {
     fi
 }
 
+function LastFM_TAG () {
+    if [ ! -e "LastFM_TAG/user_taggedartists-timestamps.dat" ]; then
+        mkdir -p LastFM_TAG
+        wget https://files.grouplens.org/datasets/hetrec2011/hetrec2011-lastfm-2k.zip
+        unzip -d LastFM_TAG hetrec2011-lastfm-2k.zip
+        rm hetrec2011-lastfm-2k.zip
+    fi
+}
+
 if [ $1 = "INIT" ]; then
     ls | grep -v -E 'download.sh' | xargs rm -r
 elif [ $1 = "ML100K" ]; then
@@ -130,6 +139,8 @@ elif [ $1 = "LFM2B_1MON" ]; then
     LFM2B_1MON
 elif [ $1 = "Twitch100K" ]; then
     Twitch100K
+elif [ $1 = "LastFM_TAG" ]; then
+    LastFM_TAG
 # elif [ $1 = "ALL" ]; then
 #     ML100K
 #     ML1M
