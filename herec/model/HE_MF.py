@@ -36,3 +36,10 @@ class HE_MF(nn.Module):
         V = self.itemEmbedder.getEmbed(item_ids)
         
         return jnp.sum(U * V, axis=1, keepdims=True)
+    
+    def get_all_scores_by_user_ids(self, user_ids):
+
+        U = self.userEmbedder.getEmbed(user_ids)
+        V = self.itemEmbedder.getEmbedByLevel(level=0)
+
+        return U @ V.T
