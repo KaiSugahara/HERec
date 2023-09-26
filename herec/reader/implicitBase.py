@@ -133,11 +133,6 @@ class implicitBase():
             for fold_id in [0, 1, 2]
         }
 
-        # Preprocessing
-        for fold_id in [0, 1, 2]:
-            self.__prepocessingForValidation(fold_id)
-            self.__prepocessingForTest(fold_id)
-
         return self
 
     def __init__(self):
@@ -147,3 +142,8 @@ class implicitBase():
 
         # Split into TRAIN, VALID, TEST subset
         self.__split()
+
+        # Preprocessing
+        for fold_id in [0, 1, 2]:
+            self.__prepocessingForValidation(fold_id)
+            self.__prepocessingForTest(fold_id)
