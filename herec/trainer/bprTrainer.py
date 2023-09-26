@@ -84,3 +84,11 @@ class bprTrainer(baseTrainer):
         loss = - jnp.mean(jnp.log(jax.nn.sigmoid(PRED_pos - PRED_neg)))
 
         return loss, variables
+
+    def clear_cache(self):
+
+        self.__train_batch.clear_cache()
+        self.loss_function.clear_cache()
+        self.__calc_top_items.clear_cache()
+
+        return self
