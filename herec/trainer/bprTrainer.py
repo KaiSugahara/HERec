@@ -14,46 +14,57 @@ from .baseTrainer import baseTrainer
 class bprTrainer(baseTrainer):
 
     @partial(jax.jit, static_argnums=0)
-    def __calc_top100_items(self, params, user_id):
+    def __calc_top_items(self, params, user_ids):
     
         # Predict Scores for All Items
-        Y = self.model.apply({"params": params}, user_id, method=self.model.get_all_scores_by_user_id)
+        Y = self.model.apply({"params": params}, user_ids, method=self.model.get_all_scores_by_user_ids)
         
         # Top Rows
-        pred_items = (-Y).argsort(axis=0)[:100]
+        pred_items = (-Y).argsort(axis=1)[:, :30]
 
         return pred_items
     
     def custom_score(self, params, df_VALID, epoch_idx):
 
+        # Extract User IDs in Valid. Subset
+        user_ids = jax.device_put(df_VALID["user_id"].to_numpy())
+
+        # Extract Predicted Ranking
+        pred_items = jnp.vstack([
+            self.__calc_top_items(params, sub_user_ids)
+            for sub_user_ids in tqdm(jnp.array_split(user_ids, len(user_ids)//1024))
+        ])
+
+        # Extract True Item IDs in Valid. Subset
+        true_items = jax.device_put( np.array(df_VALID.get_column("true_item_ids").to_list()) )
+
+        # Calc Length of True Items by User
+        true_item_len = (true_items != -1).sum(axis=1)
+        true_item_len = jax.device_get(true_item_len)
+
+        # Extract Hit Flag in Predicted Ranking
+        pred_flag = jax.vmap(lambda a, b: jnp.isin(a, b), in_axes=(0, 0), out_axes=(0))(pred_items, true_items)
+        pred_flag = jax.device_get(pred_flag)
+
         # Initialize
-        metrics = defaultdict(list)
+        metrics = {}
 
-        # Calc. Metrics for all Users in Valid. Subset
-        for user_id, true_items in tqdm(df_VALID.iter_rows()):
-
-            # Extract Predicted Ranking
-            pred_items = self.__calc_top100_items(params, user_id)
-
-            # Extract Hit Flag in Predicted Ranking
-            pred_flag = np.isin(pred_items, true_items)
-
-            # Calc.
-            for k in range(1, 31):
-
-                # Precision
-                metrics[f"Precision_{k}"].append( pred_flag[:k].sum() / k )
-
-                # Recall
-                metrics[f"Recall_{k}"].append( pred_flag[:k].sum() / len(true_items) )
-
-                # MRR
-                metrics[f"MRR_{k}"].append( (1 / (pred_flag[:k].argmax() + 1)) * pred_flag[:k].any() )
-
-                # nDCG
-                dcg = np.sum(pred_flag[:k] * (1 / np.log2(np.arange(k) + 2)))
-                idcg = np.sum(1 / np.log2(np.arange(min(k, len(true_items))) + 2))
-                metrics[f"nDCG_{k}"].append( dcg / idcg )
+        # Calc.
+        for k in [10, 30]:
+            
+            # Precision
+            metrics[f"Precision_{k}"] = np.mean(pred_flag[:, :k].sum(axis=1) / k)
+            
+            # Recall
+            metrics[f"Recall_{k}"] = np.mean(pred_flag[:, :k].sum(axis=1) / true_item_len)
+            
+            # MRR
+            metrics[f"MRR_{k}"] = np.mean((1 / (pred_flag[:, :k].argmax(axis=1) + 1)) * pred_flag[:, :k].any(axis=1))
+            
+            # nDCG
+            dcg = np.sum(pred_flag[:, :k] * (1 / np.log2(np.arange(k) + 2)), axis=1)
+            idcg = np.array([np.sum(1 / np.log2(np.arange(min(k, l)) + 2)) for l in true_item_len.tolist()])
+            metrics[f"nDCG_{k}"] = np.mean(dcg / idcg)
 
         # Calc. Ave. Score over all Users & Save to MLflow
         mlflow.log_metrics({key: np.mean(val) for key, val in metrics.items()}, step=epoch_idx+1)
