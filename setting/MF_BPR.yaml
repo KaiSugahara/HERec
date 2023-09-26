@@ -37,5 +37,5 @@ loader:
   n_neg:
     type: int
     low: 1
-    high: 50
+    high: 10
     log: True
