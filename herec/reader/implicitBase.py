@@ -41,6 +41,12 @@ class implicitBase():
             pl.col("item_id").list.unique(maintain_order=True).alias("true_item_ids"),
         )
 
+        # Fill -1 to true_item_ids such that it has the same length in VALID subset
+        max_len = df_VALID.get_column("true_item_ids").list.lengths().max()
+        df_VALID = df_VALID.with_columns(
+            pl.col("true_item_ids").list.concat([-1]*max_len).list.head(max_len)
+        )
+
         # Set Variables
         self.VALIDATION[fold_id] = {
             "df_TRAIN": df_TRAIN,
