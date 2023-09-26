@@ -8,3 +8,4 @@ from .ML100K import ML100K
 from .Ciao import Ciao
 from .Ciao_PART import Ciao_PART
 from .Twitch100K import Twitch100K
+from .LFM2B_1MON import LFM2B_1MON
