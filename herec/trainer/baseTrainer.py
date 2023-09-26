@@ -81,7 +81,7 @@ class baseTrainer:
             return False
         
         # ベスト検証ロスを更新できない場合はカウント & 終了判定
-        if getattr(self, "_es_best_loss", self.loss_history[0]["VALID_LOSS"]) < self.loss_history[epoch_idx+1]["VALID_LOSS"]:
+        if getattr(self, "_es_best_loss", self.loss_history[0]["VALID_LOSS"]) <= self.loss_history[epoch_idx+1]["VALID_LOSS"]:
             self._es_counter = getattr(self, "_es_counter", 0) + 1
             if self._es_counter == self.es_patience:
                 return True
