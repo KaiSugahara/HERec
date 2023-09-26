@@ -124,7 +124,7 @@ class train:
             self.set_loader(hyparam)
 
             # Train
-            trainer = self.targetTrainer(model=model, dataLoader=self.targetLoader, run=run, ckpt_dir=f"{getRepositoryPath()}/checkpoint/", verbose=1, **hyparam["trainer"])
+            trainer = self.targetTrainer(model=model, dataLoader=self.targetLoader, run=run, ckpt_dir=f"{getRepositoryPath()}/checkpoint/", **hyparam["trainer"])
             trainer.fit(self.DATA["df_TRAIN"], self.DATA["df_VALID"])
             trainer.clear_cache()
             print()
