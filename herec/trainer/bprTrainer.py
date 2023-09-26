@@ -87,8 +87,7 @@ class bprTrainer(baseTrainer):
 
     def clear_cache(self):
 
-        self.__train_batch.clear_cache()
-        self.loss_function.clear_cache()
+        super().clear_cache()
         self.__calc_top_items.clear_cache()
 
         return self
