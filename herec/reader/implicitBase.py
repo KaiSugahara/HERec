@@ -1,8 +1,6 @@
 import polars as pl
-from sklearn.model_selection import train_test_split
 import numpy as np
-from tqdm import trange
-import random
+
 import jax
 import jax.numpy as jnp
 
@@ -19,7 +17,6 @@ class implicitBase():
             df_EVALUATION = self._df_SUBSET[fold_id]["TEST"].clone()
         else:
             raise Exception()
-
 
         # Leave First Interaction (Be Unique) for each subset
         df_TRAIN = df_TRAIN.unique(["user_id", "item_id"])
@@ -75,7 +72,6 @@ class implicitBase():
             true_item_len = np.array(df_EVALUATION.get_column("pos_item_ids").list.set_difference(-1).list.lengths().to_list()),
         )
 
-        # Set Variables
         return {
             "df_TRAIN": df_TRAIN,
             "df_EVALUATION": df_EVALUATION,
