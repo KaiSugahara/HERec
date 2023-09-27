@@ -37,7 +37,7 @@ class train:
         elif self.model_name in ["MF_BPR", "HE_MF_BPR"]:
 
             # DataLoader
-            from herec.loader import implicitLoader as targetLoader
+            from herec.loader import bprLoader as targetLoader
             targetLoader.n_neg = hyparam["loader"]["n_neg"]
 
         else:

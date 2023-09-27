@@ -2,7 +2,7 @@ import jax
 import math
 import polars as pl
 
-class implicitLoader:
+class bprLoader:
 
     def __init__(self, key, df_DATA, batch_size):
         
