@@ -26,21 +26,16 @@ class bprTrainer(baseTrainer):
     
     def custom_score(self, params, df_VALID, epoch_idx):
 
-        # Extract User IDs in Valid. Subset
-        user_ids = jax.device_put(df_VALID["user_id"].to_numpy())
+        # Extract DATA from df_VALID
+        user_ids = df_VALID["user_ids"]
+        true_items = df_VALID["true_items"]
+        true_item_len = df_VALID["true_item_len"]
 
         # Extract Predicted Ranking
         pred_items = jnp.vstack([
             self.__calc_top_items(params, sub_user_ids)
             for sub_user_ids in tqdm(jnp.array_split(user_ids, max(1, len(user_ids)//1024)), desc=f"[Eval. {epoch_idx+1}/{self.epoch_nums}]")
         ])
-
-        # Extract True Item IDs in Valid. Subset
-        true_items = jax.device_put( np.array(df_VALID.get_column("pos_item_ids").to_list()) )
-
-        # Calc Length of True Items by User
-        true_item_len = (true_items != -1).sum(axis=1)
-        true_item_len = jax.device_get(true_item_len)
 
         # Extract Hit Flag in Predicted Ranking
         pred_flag = jax.vmap(lambda a, b: jnp.isin(a, b), in_axes=(0, 0), out_axes=(0))(pred_items, true_items)
