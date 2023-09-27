@@ -9,3 +9,4 @@ from .Ciao import Ciao
 from .Ciao_PART import Ciao_PART
 from .Twitch100K import Twitch100K
 from .LFM2B_1MON import LFM2B_1MON
+from .LastFM_TAG import LastFM_TAG
