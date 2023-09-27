@@ -125,7 +125,7 @@ class train:
 
             # Train
             trainer = self.targetTrainer(model=model, dataLoader=self.targetLoader, run=run, ckpt_dir=f"{getRepositoryPath()}/checkpoint/", **hyparam["trainer"])
-            trainer.fit(self.DATA["df_TRAIN"], self.DATA["df_VALID"])
+            trainer.fit(self.DATA["df_TRAIN"], self.DATA["df_EVALUATION"])
             trainer.clear_cache()
             print()
         
@@ -156,11 +156,12 @@ class train:
         elif self.dataset_name == "DIGINETICA":
             reader = DIGINETICA()
 
-        self.DATA = reader.VALIDATION[self.seed].copy()
+        self.DATA = reader.get(self.seed, "train").copy()
 
         # Print Statistics
         print("shape of df_TRAIN:", self.DATA["df_TRAIN"].shape)
-        print("shape of df_VALID:", self.DATA["df_VALID"].shape)
+        if type(self.DATA["df_EVALUATION"]) != dict:
+            print("shape of df_EVALUATION:", self.DATA["df_EVALUATION"].shape)
         if "user_num" in self.DATA.keys():
             print("User #:", self.DATA["user_num"])
         if "item_num" in self.DATA.keys():
