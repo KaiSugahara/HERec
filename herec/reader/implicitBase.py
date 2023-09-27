@@ -39,16 +39,21 @@ class implicitBase():
             pl.col("item_id").map_dict(item_id_map),
         )
 
-        # Aggregate Item IDs for VALID subset
-        df_VALID = df_VALID.group_by(["user_id"], maintain_order=True).agg("item_id").select(
-            pl.col("user_id"),
-            pl.col("item_id").list.unique(maintain_order=True).alias("true_item_ids"),
+        # Add Positive Item IDs for Each User in TRAIN subset
+        df_TRAIN = df_TRAIN.group_by("user_id", maintain_order=True).agg(
+            pl.col("item_id"),
+            pl.col("item_id").alias("pos_item_ids"),
+        ).explode("item_id")
+
+        # Add Positive Item IDs for Each User in VALID subset
+        df_VALID = df_VALID.group_by("user_id", maintain_order=True).agg(
+            pl.col("item_id").alias("pos_item_ids"),
         )
 
-        # Fill -1 to true_item_ids such that it has the same length in VALID subset
-        max_len = df_VALID.get_column("true_item_ids").list.lengths().max()
+        # Fill -1 to pos_item_ids such that it has the same length in VALID subset
+        max_len = df_VALID.get_column("pos_item_ids").list.lengths().max()
         df_VALID = df_VALID.with_columns(
-            pl.col("true_item_ids").list.concat([-1]*max_len).list.head(max_len)
+            pl.col("pos_item_ids").list.concat([-1]*max_len).list.head(max_len)
         )
 
         # Set Variables
@@ -81,10 +86,10 @@ class implicitBase():
         )
 
         # Reset IDs
-        user_ids = pl.concat([df_TEST, df_TEST]).get_column("user_id").unique(maintain_order=True)
+        user_ids = pl.concat([df_TRAIN, df_TEST]).get_column("user_id").unique(maintain_order=True)
         user_id_map = dict(zip(user_ids, range(len(user_ids))))
         user_num = len(user_id_map)
-        item_ids = pl.concat([df_TEST, df_TEST]).get_column("item_id").unique(maintain_order=True)
+        item_ids = pl.concat([df_TRAIN, df_TEST]).get_column("item_id").unique(maintain_order=True)
         item_id_map = dict(zip(item_ids, range(len(item_ids))))
         item_num = len(item_id_map)
         df_TRAIN = df_TRAIN.with_columns(
@@ -96,10 +101,21 @@ class implicitBase():
             pl.col("item_id").map_dict(item_id_map),
         )
 
-        # Aggregate Item IDs for TEST subset
-        df_TEST = df_TEST.group_by(["user_id"], maintain_order=True).agg("item_id").select(
-            pl.col("user_id"),
-            pl.col("item_id").list.unique(maintain_order=True).alias("true_item_ids"),
+        # Add Positive Item IDs for Each User in TRAIN subset
+        df_TRAIN = df_TRAIN.group_by("user_id", maintain_order=True).agg(
+            pl.col("item_id"),
+            pl.col("item_id").alias("pos_item_ids"),
+        ).explode("item_id")
+
+        # Add Positive Item IDs for Each User in TEST subset
+        df_TEST = df_TEST.group_by("user_id", maintain_order=True).agg(
+            pl.col("item_id").alias("pos_item_ids"),
+        )
+
+        # Fill -1 to pos_item_ids such that it has the same length in TEST subset
+        max_len = df_TEST.get_column("pos_item_ids").list.lengths().max()
+        df_TEST = df_TEST.with_columns(
+            pl.col("pos_item_ids").list.concat([-1]*max_len).list.head(max_len)
         )
 
         # Set Variables
