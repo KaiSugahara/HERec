@@ -65,7 +65,7 @@ class implicitBase():
             # True Item IDs
             true_items = jnp.array(df_VALID.get_column("pos_item_ids").to_list()),
             # Length of True Items by User
-            true_item_len = jnp.array(df_VALID.get_column("pos_item_ids").list.set_difference(-1).list.lengths().to_list()),
+            true_item_len = np.array(df_VALID.get_column("pos_item_ids").list.set_difference(-1).list.lengths().to_list()),
         )
 
         # Set Variables
@@ -137,7 +137,7 @@ class implicitBase():
             # True Item IDs
             true_items = jnp.array(df_TEST.get_column("pos_item_ids").to_list()),
             # Length of True Items by User
-            true_item_len = jnp.array(df_TEST.get_column("pos_item_ids").list.set_difference(-1).list.lengths().to_list()),
+            true_item_len = np.array(df_TEST.get_column("pos_item_ids").list.set_difference(-1).list.lengths().to_list()),
         )
 
         # Set Variables
