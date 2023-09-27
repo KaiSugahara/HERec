@@ -24,9 +24,6 @@ class bprLoader:
         # Extract Item Num.
         item_num = df_X["item_id"].n_unique()
 
-        # Extract Positive Items
-        df_X = df_X.group_by("user_id", maintain_order=True).agg("item_id").with_columns( pl.col("item_id").list.unique().alias("pos_item_ids") ).explode("item_id")
-
         # Negative Sampling: Initialize
         column_name = f"neg_item_id"
         df_X = df_X.with_columns( pl.lit(-1).alias(column_name), dup_num=True )
@@ -45,8 +42,6 @@ class bprLoader:
                 .then( pl.col("pos_item_ids").list.contains(pl.col(column_name)).alias("dup_num") )
                 .otherwise( pl.col("dup_num") )
             )
-
-        self.df_X = df_X
 
         # Convert to Matrix
         self.X = jax.device_put(df_X.select("user_id", "item_id", "neg_item_id").to_numpy())
