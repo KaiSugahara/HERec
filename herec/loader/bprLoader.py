@@ -21,7 +21,7 @@ class bprLoader:
         # Clone
         df_X = df_DATA.clone()
 
-        # Extract User Num.
+        # Extract Item Num.
         item_num = df_X["item_id"].n_unique()
 
         # Extract Positive Items
