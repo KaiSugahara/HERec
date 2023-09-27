@@ -3,6 +3,8 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 from tqdm import trange
 import random
+import jax
+import jax.numpy as jnp
 
 class implicitBase():
 
@@ -54,6 +56,16 @@ class implicitBase():
         max_len = df_VALID.get_column("pos_item_ids").list.lengths().max()
         df_VALID = df_VALID.with_columns(
             pl.col("pos_item_ids").list.concat([-1]*max_len).list.head(max_len)
+        )
+
+        # Convert TEST subset for Evaluation
+        df_VALID = dict(
+            # User IDs
+            user_ids = jax.device_put(df_VALID.get_column("user_id").to_numpy()),
+            # True Item IDs
+            true_items = jnp.array(df_VALID.get_column("pos_item_ids").to_list()),
+            # Length of True Items by User
+            true_item_len = jnp.array(df_VALID.get_column("pos_item_ids").list.set_difference(-1).list.lengths().to_list()),
         )
 
         # Set Variables
@@ -116,6 +128,16 @@ class implicitBase():
         max_len = df_TEST.get_column("pos_item_ids").list.lengths().max()
         df_TEST = df_TEST.with_columns(
             pl.col("pos_item_ids").list.concat([-1]*max_len).list.head(max_len)
+        )
+
+        # Convert TEST subset for Evaluation
+        df_TEST = dict(
+            # User IDs
+            user_ids = jax.device_put(df_TEST.get_column("user_id").to_numpy()),
+            # True Item IDs
+            true_items = jnp.array(df_TEST.get_column("pos_item_ids").to_list()),
+            # Length of True Items by User
+            true_item_len = jnp.array(df_TEST.get_column("pos_item_ids").list.set_difference(-1).list.lengths().to_list()),
         )
 
         # Set Variables
