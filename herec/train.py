@@ -38,7 +38,6 @@ class train:
 
             # DataLoader
             from herec.loader import bprLoader as targetLoader
-            targetLoader.n_neg = hyparam["loader"]["n_neg"]
 
         else:
             

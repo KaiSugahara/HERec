@@ -51,11 +51,3 @@ trainer:
     type: categorical
     choices:
       - 10
-
-# LOADER
-loader:
-  n_neg:
-    type: int
-    low: 1
-    high: 10
-    log: True
