@@ -36,7 +36,7 @@ class bprTrainer(baseTrainer):
         ])
 
         # Extract True Item IDs in Valid. Subset
-        true_items = jax.device_put( np.array(df_VALID.get_column("true_item_ids").to_list()) )
+        true_items = jax.device_put( np.array(df_VALID.get_column("pos_item_ids").to_list()) )
 
         # Calc Length of True Items by User
         true_item_len = (true_items != -1).sum(axis=1)
