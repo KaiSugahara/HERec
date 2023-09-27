@@ -27,29 +27,29 @@ class bprLoader:
         # Extract Positive Items
         df_X = df_X.group_by("user_id", maintain_order=True).agg("item_id").with_columns( pl.col("item_id").list.unique().alias("pos_item_ids") ).explode("item_id")
 
-        # Negative Sampling
-        for i in range(self.n_neg):
+        # Negative Sampling: Initialize
+        column_name = f"neg_item_id"
+        df_X = df_X.with_columns( pl.lit(-1).alias(column_name), dup_num=True )
 
-            # Initialize
-            column_name = f"neg_item_id_{i}"
-            df_X = df_X.with_columns( pl.lit(-1).alias(column_name), dup_num=True )
+        while df_X.get_column("dup_num").any():
+            
+            # Sampling
+            df_X = df_X.with_columns(
+                pl.when( pl.col("dup_num") )
+                .then( pl.arange(0, item_num).sample(self.data_size, with_replacement=True).alias(column_name) )
+                .otherwise( pl.col(column_name) )
+            )
+            # Check Duplicates between Positive and Negative Items
+            df_X = df_X.with_columns(
+                pl.when( pl.col("dup_num") )
+                .then( pl.col("pos_item_ids").list.contains(pl.col(column_name)).alias("dup_num") )
+                .otherwise( pl.col("dup_num") )
+            )
 
-            while df_X.get_column("dup_num").any():
-                # Sampling
-                df_X = df_X.with_columns(
-                    pl.when( pl.col("dup_num") )
-                    .then( pl.arange(0, item_num).sample(self.data_size, with_replacement=True).alias(column_name) )
-                    .otherwise( pl.col(column_name) )
-                )
-                # Check Duplicates between Positive and Negative Items
-                df_X = df_X.with_columns(
-                    pl.when( pl.col("dup_num") )
-                    .then( pl.col("pos_item_ids").list.contains(pl.col(column_name)).alias("dup_num") )
-                    .otherwise( pl.col("dup_num") )
-                )
+        self.df_X = df_X
 
         # Convert to Matrix
-        self.X = jax.device_put(df_X.select("user_id", "item_id", "^neg_item_id_\d+$").to_numpy())
+        self.X = jax.device_put(df_X.select("user_id", "item_id", "neg_item_id").to_numpy())
         
         # Shuffle rows of X
         self.X = self.X[self.shuffled_indices]
