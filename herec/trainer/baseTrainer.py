@@ -67,7 +67,7 @@ class baseTrainer:
 
         return subkey
 
-    def __early_stopping(self, epoch_idx):
+    def __early_stopping(self, epoch_i):
 
         """
             func: Early Stoppingの判定
@@ -78,18 +78,18 @@ class baseTrainer:
             return False
 
         # 検証ロスが計算されていない場合は継続判定
-        if "VALID_LOSS" not in self.loss_history[epoch_idx+1].keys():
+        if "VALID_LOSS" not in self.loss_history[epoch_i].keys():
             return False
         
         # ベスト検証ロスを更新できない場合はカウント & 終了判定
-        if getattr(self, "_es_best_loss", self.loss_history[0]["VALID_LOSS"]) <= self.loss_history[epoch_idx+1]["VALID_LOSS"]:
+        if getattr(self, "_es_best_loss", self.loss_history[0]["VALID_LOSS"]) <= self.loss_history[epoch_i]["VALID_LOSS"]:
             self._es_counter = getattr(self, "_es_counter", 0) + 1
             if self._es_counter == self.es_patience:
                 return True
         # ベスト検証ロスを更新する場合
         else:
             self._es_counter = 0
-            self._es_best_loss = self.loss_history[epoch_idx+1]["VALID_LOSS"]
+            self._es_best_loss = self.loss_history[epoch_i]["VALID_LOSS"]
             
         return False
 
@@ -116,13 +116,23 @@ class baseTrainer:
         # 平均値を返す
         return np.average(np.array(batch_loss_list), weights=np.array(batch_size_list))
 
+    def __save_metric(self, metric_name: str, metric_value: float, epoch_i: int):
+        
+        """
+            Save metric score for one epoch
+        """
+        
+        self.loss_history[epoch_i][metric_name] = metric_value
+        mlflow.log_metric(metric_name, metric_value, step=epoch_i)    # MLFlowに保存
+        
+        return self
 
-    def __calc_current_loss(self, epoch_idx, df_TRAIN, df_VALID):
+    def __calc_current_loss(self, epoch_i, df_TRAIN, df_VALID):
 
         """
             func: 現エポックのロスを計算
             args:
-                - epoch_idx: エポック番号
+                - epoch_i: エポック番号
                 - df_TRAIN: 訓練入力データ
                 - df_VALID: 検証入力データ
         """
@@ -132,18 +142,15 @@ class baseTrainer:
 
             if hasattr(self, 'custom_score'):
                 # Calc. Custom Score
-                self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.custom_score(self.state.params, df_VALID, epoch_idx))
+                self.__save_metric("VALID_LOSS", self.custom_score(self.state.params, df_VALID, epoch_i), epoch_i)
             else:
                 # Calc. Loss as Score
-                self.loss_history[epoch_idx+1][f"VALID_LOSS"] = (loss := self.score(self.state.params, df_VALID))
-            
-            # Save Score to MLflow
-            mlflow.log_metric("VALID_LOSS", loss, step=epoch_idx+1)
+                self.__save_metric("VALID_LOSS", self.score(self.state.params, df_VALID), epoch_i)
 
         # Print
         if self.verbose > 0:
-            print(f"\r[Epoch {epoch_idx+1}/{self.epochNum}]", end=" ")
-            for key, val in self.loss_history[epoch_idx+1].items():
+            print(f"\r[Epoch {epoch_i}/{self.epochNum}]", end=" ")
+            for key, val in self.loss_history[epoch_i].items():
                 print(key, val, end=" ")
 
         return self
@@ -174,35 +181,35 @@ class baseTrainer:
         state = state.apply_gradients(grads=grads)
         return state, variables, loss
 
-
-    def __train_epoch(self, epoch_idx, df_TRAIN):
+    def __train_epoch(self, epoch_i: int, df_TRAIN: Any):
 
         """
-            func: エポック単位の学習
-            args:
-                - epoch_idx: エポック番号
-                - df_TRAIN: 訓練入力データ
-        """
-
-        # データローダ（ミニバッチ）
-        loader = self.dataLoader(self.__get_key(), df_TRAIN, batch_size=self.batch_size)
-
-        # ミニバッチ学習
-        with tqdm(loader, total=loader.batch_num, desc=f"[Epoch {epoch_idx+1}/{self.epochNum}]", disable=(self.verbose != 2)) as pbar:
+            Training for one epoch
             
-            # 平均ミニバッチ損失を初期化
-            self.loss_history[epoch_idx+1][f"TRAIN_LOSS(M.B.AVE.)"] = []
-            # ミニバッチ学習
+            Args:
+                - epoch_i: Index of the epoch
+                - df_TRAIN: Training subset dataset
+        """
+
+        # Create an instance of the Data Loader
+        loader: Any = self.dataLoader(self.__get_key(), df_TRAIN, batch_size=self.batch_size)
+
+        with tqdm(loader, total=loader.batch_num, desc=f"[Epoch {epoch_i}/{self.epochNum}]", disable=(self.verbose != 2)) as pbar:
+            
+            # Initialize list to store losses temporarily
+            losses = []
+            
+            # Perform mini-batch learning
             for X, Y in pbar:
-                # モデルパラメータ更新
-                self.state, self.variables, loss = self.__train_batch(self.state, self.variables, X, Y)
-                # ミニバッチのロスを表示
-                pbar.set_postfix({"TRAIN_LOSS（TMP）": loss})
-                # ミニバッチ損失を加算
-                self.loss_history[epoch_idx+1][f"TRAIN_LOSS(M.B.AVE.)"].append(loss)
-            # 平均ミニバッチ損失を計算
-            self.loss_history[epoch_idx+1][f"TRAIN_LOSS(M.B.AVE.)"] = (save_loss := np.mean(self.loss_history[epoch_idx+1][f"TRAIN_LOSS(M.B.AVE.)"]))
-            mlflow.log_metric("TRAIN_LOSS/REF.", save_loss, step=epoch_idx+1)    # MLFlowに保存
+                # Update model parameters
+                self.state, self.variables, miniBatchLoss = self.__train_batch(self.state, self.variables, X, Y)
+                # Display the mini-batch loss
+                pbar.set_postfix({"TRAIN_LOSS（TMP）": miniBatchLoss})
+                # Store the mini-batch loss
+                losses.append(miniBatchLoss)
+        
+        # Calculate average loss as rough loss on training subset
+        self.__save_metric("TRAIN_LOSS/ROUGH", np.mean(losses), epoch_i)
 
         return self
 
@@ -250,7 +257,7 @@ class baseTrainer:
         self.loss_history = defaultdict(dict)
 
         # 現在のロスを計算
-        self.__calc_current_loss(-1, df_TRAIN, df_VALID)
+        self.__calc_current_loss(0, df_TRAIN, df_VALID)
 
         # Save Checkpoint at step=0
         ckpt = self.state.params
@@ -258,21 +265,21 @@ class baseTrainer:
         self.checkpoint_manager.save(0, ckpt, save_kwargs={'save_args': save_args})
 
         # 学習
-        for epoch_idx in range(self.epochNum):
+        for epoch_i in range(1, self.epochNum+1):
 
             # モデルパラメータと状態変数の更新
-            self.__train_epoch(epoch_idx, df_TRAIN)
+            self.__train_epoch(epoch_i, df_TRAIN)
 
             # 現在のロスを計算
-            self.__calc_current_loss(epoch_idx, df_TRAIN, df_VALID)
+            self.__calc_current_loss(epoch_i, df_TRAIN, df_VALID)
 
             # Save Checkpoint
             ckpt = self.state.params
             save_args = orbax_utils.save_args_from_target(ckpt)
-            self.checkpoint_manager.save(epoch_idx+1, ckpt, save_kwargs={'save_args': save_args})
+            self.checkpoint_manager.save(epoch_i, ckpt, save_kwargs={'save_args': save_args})
 
             # EarlyStopping判定
-            if self.__early_stopping(epoch_idx): break
+            if self.__early_stopping(epoch_i): break
 
         return self
 
@@ -300,7 +307,7 @@ class baseTrainer:
     ):
 
         """
-            Train a Flax model using specified parameters.
+            Trainer a Flax model using specified parameters.
 
             Args:
                 model: Flax model to be trained.
