@@ -1,3 +1,4 @@
+from typing import Any
 import numpy as np
 from collections import defaultdict
 import mlflow
@@ -282,28 +283,50 @@ class baseTrainer:
 
         return self
 
-
-    def __init__(self, model, dataLoader, run, ckpt_dir, epoch_nums=128, batch_size=512, learning_rate=0.001, seed=0, verbose=2, weight_decay=0, es_patience=0, **other_params):
+    def __init__(
+        self,
+        model: Any,
+        dataLoader: Any,
+        run: Any,
+        ckpt_dir: str,
+        epoch_nums: int = 128,
+        batch_size: int = 512,
+        learning_rate: float = 0.001,
+        weight_decay: float = 0,
+        es_patience: int = 0,
+        seed: int = 0,
+        verbose: int = 2,
+        **other_params: Any,
+    ):
 
         """
-            args:
-                model: a model using Flax
-                dataLoader: loader of dataset
-                run: run of MLFlow
-                ckpt_dir: save dir. of model parameter checkpoint
-                epoch_nums: # of epochs
-                batch_size: the size of Mini-batch
-                learning_rate: learning rate of AdamW
-                seed: random seed of initializer
-                verbose: print of status（2: all print, 1: part print, 0: nothing）
-                weight_decay: weight_decay of Adam
-                other_params: model-specific hyper-parameters (options)
-                es_patience: patience to judge early stopping
+            Train a Flax model using specified parameters.
+
+            Args:
+                model: Flax model to be trained.
+                dataLoader: DataLoader for the dataset.
+                run: MLFlow run for experiment tracking.
+                ckpt_dir: Directory to save model parameter checkpoints.
+                epoch_nums: Number of epochs to train.
+                batch_size: Mini-batch size.
+                learning_rate: Learning rate for AdamW optimizer.
+                weight_decay: Weight decay for AdamW optimizer.
+                es_patience: Patience for early stopping criterion.
+                seed: Random seed for initialization.
+                verbose: Verbosity level (2: all prints, 1: partial prints, 0: no prints).
+                other_params: Model-specific hyperparameters (optional).
         """
 
-        # Get arguments
-        args = locals().copy()
-        # Exclude "self"
-        del args["self"]
-        # Set arguments as class members
-        for key, value in args.items(): setattr(self, key, value)
+        # Set Arguments as Class Members
+        setattr(self, "model", model)
+        setattr(self, "dataLoader", dataLoader)
+        setattr(self, "run", run)
+        setattr(self, "ckpt_dir", ckpt_dir)
+        setattr(self, "epoch_nums", epoch_nums)
+        setattr(self, "batch_size", batch_size)
+        setattr(self, "learning_rate", learning_rate)
+        setattr(self, "weight_decay", weight_decay)
+        setattr(self, "es_patience", es_patience)
+        setattr(self, "seed", seed)
+        setattr(self, "verbose", verbose)
+        for arg_name, arg_value in other_params.items(): setattr(self, arg_name, arg_value)
