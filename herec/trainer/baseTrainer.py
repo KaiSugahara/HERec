@@ -142,7 +142,7 @@ class baseTrainer:
 
         # Print
         if self.verbose > 0:
-            print(f"\r[Epoch {epoch_idx+1}/{self.epoch_nums}]", end=" ")
+            print(f"\r[Epoch {epoch_idx+1}/{self.epochNum}]", end=" ")
             for key, val in self.loss_history[epoch_idx+1].items():
                 print(key, val, end=" ")
 
@@ -188,7 +188,7 @@ class baseTrainer:
         loader = self.dataLoader(self.__get_key(), df_TRAIN, batch_size=self.batch_size)
 
         # ミニバッチ学習
-        with tqdm(loader, total=loader.batch_num, desc=f"[Epoch {epoch_idx+1}/{self.epoch_nums}]", disable=(self.verbose != 2)) as pbar:
+        with tqdm(loader, total=loader.batch_num, desc=f"[Epoch {epoch_idx+1}/{self.epochNum}]", disable=(self.verbose != 2)) as pbar:
             
             # 平均ミニバッチ損失を初期化
             self.loss_history[epoch_idx+1][f"TRAIN_LOSS(M.B.AVE.)"] = []
@@ -258,7 +258,7 @@ class baseTrainer:
         self.checkpoint_manager.save(0, ckpt, save_kwargs={'save_args': save_args})
 
         # 学習
-        for epoch_idx in range(self.epoch_nums):
+        for epoch_idx in range(self.epochNum):
 
             # モデルパラメータと状態変数の更新
             self.__train_epoch(epoch_idx, df_TRAIN)
@@ -289,7 +289,7 @@ class baseTrainer:
         dataLoader: Any,
         run: Any,
         ckpt_dir: str,
-        epoch_nums: int = 128,
+        epochNum: int = 128,
         batch_size: int = 512,
         learning_rate: float = 0.001,
         weight_decay: float = 0,
@@ -307,7 +307,7 @@ class baseTrainer:
                 dataLoader: DataLoader for the dataset.
                 run: MLFlow run for experiment tracking.
                 ckpt_dir: Directory to save model parameter checkpoints.
-                epoch_nums: Number of epochs to train.
+                epochNum: Number of epochs to train.
                 batch_size: Mini-batch size.
                 learning_rate: Learning rate for AdamW optimizer.
                 weight_decay: Weight decay for AdamW optimizer.
@@ -322,7 +322,7 @@ class baseTrainer:
         setattr(self, "dataLoader", dataLoader)
         setattr(self, "run", run)
         setattr(self, "ckpt_dir", ckpt_dir)
-        setattr(self, "epoch_nums", epoch_nums)
+        setattr(self, "epochNum", epochNum)
         setattr(self, "batch_size", batch_size)
         setattr(self, "learning_rate", learning_rate)
         setattr(self, "weight_decay", weight_decay)

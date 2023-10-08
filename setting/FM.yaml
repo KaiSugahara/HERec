@@ -8,7 +8,7 @@ model:
 
 # TRAINER
 trainer:
-  epoch_nums:
+  epochNum:
     type: categorical
     choices:
       - 1024
