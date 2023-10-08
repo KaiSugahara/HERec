@@ -24,7 +24,7 @@ class bprTrainer(baseTrainer):
 
         return pred_items
     
-    def custom_score(self, params, df_VALID, epoch_idx):
+    def custom_score(self, params, df_VALID, epoch_i):
 
         # Extract DATA from df_VALID
         user_ids = df_VALID["user_ids"]
@@ -34,7 +34,7 @@ class bprTrainer(baseTrainer):
         # Extract Predicted Ranking
         pred_items = jnp.vstack([
             self.__calc_top_items(params, sub_user_ids)
-            for sub_user_ids in tqdm(jnp.array_split(user_ids, max(1, len(user_ids)//1024)), desc=f"[Eval. {epoch_idx+1}/{self.epoch_nums}]")
+            for sub_user_ids in tqdm(jnp.array_split(user_ids, max(1, len(user_ids)//1024)), desc=f"[Eval. {epoch_i}/{self.epochNum}]")
         ])
 
         # Extract Hit Flag in Predicted Ranking
@@ -62,7 +62,7 @@ class bprTrainer(baseTrainer):
             metrics[f"nDCG_{k}"] = np.mean(dcg / idcg)
 
         # Calc. Ave. Score over all Users & Save to MLflow
-        mlflow.log_metrics({key: np.mean(val) for key, val in metrics.items()}, step=epoch_idx+1)
+        mlflow.log_metrics({key: np.mean(val) for key, val in metrics.items()}, step=epoch_i)
 
         return - np.mean(metrics[f"nDCG_10"])
 
