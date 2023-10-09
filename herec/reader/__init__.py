@@ -2,9 +2,11 @@ from .AMAZON_M2 import AMAZON_M2
 from .BookCrossing import BookCrossing
 from .DIGINETICA import DIGINETICA
 from .ML1M import ML1M
+from .ML1M_IMPLICIT import ML1M_IMPLICIT
 from .ML10M import ML10M
 from .ML25M import ML25M
 from .ML100K import ML100K
+from .ML100K_IMPLICIT import ML100K_IMPLICIT
 from .Ciao import Ciao
 from .Ciao_PART import Ciao_PART
 from .Twitch100K import Twitch100K

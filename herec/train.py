@@ -151,8 +151,12 @@ class train:
 
         if self.dataset_name == "ML100K":
             reader = ML100K()
+        elif self.dataset_name == "ML100K_IMPLICIT":
+            reader = ML100K_IMPLICIT()
         elif self.dataset_name == "ML1M":
             reader = ML1M()
+        elif self.dataset_name == "ML1M_IMPLICIT":
+            reader = ML1M_IMPLICIT()
         elif self.dataset_name == "ML10M":
             reader = ML10M()
         elif self.dataset_name == "ML25M":
