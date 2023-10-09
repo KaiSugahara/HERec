@@ -18,6 +18,11 @@ class train:
 
             # Trainer
             from herec.trainer import bprTrainer as targetTrainer
+            
+        elif self.model_name in ["MF_SSM", "HE_MF_SSM"]:
+
+            # Trainer
+            from herec.trainer import ssmTrainer as targetTrainer
 
         else:
             
@@ -38,6 +43,12 @@ class train:
 
             # DataLoader
             from herec.loader import bprLoader as targetLoader
+            
+        elif self.model_name in ["MF_SSM", "HE_MF_SSM"]:
+
+            # DataLoader
+            from herec.loader import ssmLoader as targetLoader
+            targetLoader.n_neg = hyparam["loader"].pop("n_neg")
 
         else:
             
@@ -53,7 +64,7 @@ class train:
             func: generate a model from model class
         """
 
-        if self.model_name in ["MF", "MF_BPR"]:
+        if self.model_name in ["MF", "MF_BPR", "MF_SSM"]:
             
             from herec.model import MF
             return MF(
@@ -62,7 +73,7 @@ class train:
                 **hyparam["model"]
             )
 
-        if self.model_name in ["HE_MF", "HE_MF_BPR"]:
+        if self.model_name in ["HE_MF", "HE_MF_BPR", "HE_MF_SSM"]:
 
             from herec.model import HE_MF
             return HE_MF(
