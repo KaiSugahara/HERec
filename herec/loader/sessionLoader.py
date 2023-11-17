@@ -1,8 +1,7 @@
 import jax
-import math
 import numpy as np
-import jax.numpy as jnp
-from tqdm import tqdm
+from tqdm import trange
+import itertools
 
 class sessionLoader:
 
@@ -22,29 +21,35 @@ class sessionLoader:
         INPUT = [[] for _ in range(self.batch_size)]
         OUTPUT = [[] for _ in range(self.batch_size)]
         IDS = [[] for _ in range(self.batch_size)]
-        INPUT_SIZE = [0 for _ in range(self.batch_size)]
 
         # 割当
-        for session_id, session in tqdm(enumerate(session_list)):
-            sorted_index = np.argmin(INPUT_SIZE)
-            INPUT[sorted_index] += session[:-1]
-            OUTPUT[sorted_index] += session[1:]
-            IDS[sorted_index] += [session_id for _ in range(len(session)-1)]
-            INPUT_SIZE[sorted_index] += len(session) - 1
+        for i in trange(self.batch_size):
+            tmp_session_list = session_list[i::self.batch_size]
+            INPUT[i] = list(itertools.chain.from_iterable( [session[:-1] for session in tmp_session_list] ))
+            OUTPUT[i] = list(itertools.chain.from_iterable( [session[1:] for session in tmp_session_list] ))
+            IDS[i] = list(itertools.chain.from_iterable( [[idx]*(len(session)-1) for idx, session in enumerate(tmp_session_list)] ))
 
-        # 末尾+1はダミーIDで埋める
-        # batch_num = max(map(len, INPUT)) + 1
+        # 先頭をダミーIDで埋める
         batch_num = max(map(len, INPUT))
         INPUT = [[0] * (batch_num - len(row)) + row for row in INPUT]
+        INPUT = np.array(INPUT)
         OUTPUT = [[0] * (batch_num - len(row)) + row for row in OUTPUT]
-        IDS = [[session_id+1] * (batch_num - len(row)) + row for row in IDS]
+        OUTPUT = np.array(OUTPUT)
+        IDS = [[-1] * (batch_num - len(row)) + row for row in IDS]
+        IDS = np.array(IDS)
+        
+        # マスク
+        MASK = np.hstack([np.zeros((self.batch_size, 1), dtype=int), (IDS[:, :-1] == IDS[:, 1:]).astype(int)])
+        
+        # Transfer to GPU
+        INPUT = jax.device_put(INPUT)
+        OUTPUT = jax.device_put(OUTPUT)
+        IDS = jax.device_put(IDS)
 
-        # Numpyに変換
-        self.INPUT = jnp.array(INPUT)
-        self.OUTPUT = jnp.array(OUTPUT)
-        self.IDS = jnp.array(IDS)
-        self.MASK = jnp.hstack([jnp.zeros((self.batch_size, 1), dtype=int), (self.IDS[:, :-1] == self.IDS[:, 1:]).astype(int)])
-        self.LAST_FLAG = (self.IDS != jnp.hstack([self.IDS[:, 1:], jnp.array([[self.IDS.max()]] * self.batch_size)]))
+        # 保持
+        self.INPUT = INPUT
+        self.OUTPUT = OUTPUT
+        self.MASK = MASK
 
         return self
 
