@@ -23,6 +23,11 @@ class train:
 
             # Trainer
             from herec.trainer import ssmTrainer as targetTrainer
+            
+        elif self.model_name in ["GRU4Rec"]:
+
+            # Trainer
+            from herec.trainer import sessionTrainer as targetTrainer
 
         else:
             
@@ -49,6 +54,11 @@ class train:
             # DataLoader
             from herec.loader import ssmLoader as targetLoader
             targetLoader.n_neg = hyparam["loader"].pop("n_neg")
+            
+        elif self.model_name in ["GRU4Rec"]:
+
+            # DataLoader
+            from herec.loader import sessionLoader as targetLoader
 
         else:
             
@@ -101,6 +111,16 @@ class train:
                 item_num=self.DATA["item_num"],
                 userClusterNums=[num := hyparam["model"].pop("userClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("userHierarchyDepth"))],
                 itemClusterNums=[num := hyparam["model"].pop("itemClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("itemHierarchyDepth"))],
+                **hyparam["model"]
+            )
+            
+        if self.model_name == "GRU4Rec":
+
+            from herec.model import GRU4Rec
+            return GRU4Rec(
+                item_num=self.DATA["item_num"],
+                GRU_LAYER_SIZES=[num := hyparam["model"].pop("gruLayerSize")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("gruLayerDepth"))],
+                FF_LAYER_SIZES=[num := hyparam["model"].pop("ffLayerSize")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("ffLayerDepth"))],
                 **hyparam["model"]
             )
         
@@ -169,6 +189,8 @@ class train:
             reader = Twitch100K()
         elif self.dataset_name == "DIGINETICA":
             reader = DIGINETICA()
+        elif self.dataset_name == "AMAZON_M2":
+            reader = AMAZON_M2()
 
         self.DATA = reader.get(self.seed, "train").copy()
 
