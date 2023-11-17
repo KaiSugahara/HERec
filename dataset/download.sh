@@ -127,8 +127,8 @@ elif [ $1 = "ML25M" ]; then
 #     Amazon
 elif [ $1 = "DIGINETICA" ]; then
     DIGINETICA
-# elif [ $1 = "AMAZON_M2" ]; then
-#     AMAZON_M2
+elif [ $1 = "AMAZON_M2" ]; then
+    AMAZON_M2
 # elif [ $1 = "Epinions" ]; then
 #     Epinions
 elif [ $1 = "Ciao" ]; then
