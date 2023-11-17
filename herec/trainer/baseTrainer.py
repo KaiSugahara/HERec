@@ -110,7 +110,7 @@ class baseTrainer:
         # ミニバッチ単位でロスを計算
         for i, (X, Y) in enumerate(loader):
             loss, variables = self.loss_function(params, variables, X, Y)
-            batch_size_list.append(X.shape[0])
+            batch_size_list.append(X.shape[0] if type(X) is not tuple else X[0].shape[0])
             batch_loss_list.append(loss)
 
         # 平均値を返す
