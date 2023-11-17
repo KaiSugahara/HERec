@@ -127,10 +127,10 @@ elif [ $1 = "ML25M" ]; then
 #     Amazon
 elif [ $1 = "DIGINETICA" ]; then
     DIGINETICA
-elif [ $1 = "AMAZON_M2" ]; then
-    AMAZON_M2
-elif [ $1 = "Epinions" ]; then
-    Epinions
+# elif [ $1 = "AMAZON_M2" ]; then
+#     AMAZON_M2
+# elif [ $1 = "Epinions" ]; then
+#     Epinions
 elif [ $1 = "Ciao" ]; then
     Ciao
 elif [ $1 = "Ciao_PART" ]; then
@@ -139,8 +139,8 @@ elif [ $1 = "LFM2B_1MON" ]; then
     LFM2B_1MON
 elif [ $1 = "Twitch100K" ]; then
     Twitch100K
-elif [ $1 = "LastFM_TAG" ]; then
-    LastFM_TAG
+# elif [ $1 = "LastFM_TAG" ]; then
+#     LastFM_TAG
 # elif [ $1 = "ALL" ]; then
 #     ML100K
 #     ML1M
