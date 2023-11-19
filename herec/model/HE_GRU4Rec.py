@@ -8,17 +8,17 @@ from .HE import HE
 class HE_GRU4Rec(nn.Module):
     
     item_num: int
+    itemClusterNums: list
     embedDim: int
-    clusterNums: list
     GRU_LAYER_SIZES: Sequence[int]
     FF_LAYER_SIZES: Sequence[int]
-
+    
     def setup(self):
 
         self.itemEmbedder = HE(
             objNum = self.item_num,
-            clusterNums = self.clusterNums,
-            embedDim = self.embedDim
+            clusterNums = self.itemClusterNums,
+            embedDim = self.embedDim,
         )
     
     @nn.compact
@@ -57,7 +57,6 @@ class HE_GRU4Rec(nn.Module):
             X = nn.relu(X)
             
         # Output:
-        # インスタンス（＝行）ごとに指定されたアイテムidのレーティングを予測（部分的なDenseを行っているだけ）
         X = nn.Dense(features=self.item_num)(X)
         X = nn.softmax(X)
         
