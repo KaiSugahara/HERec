@@ -191,6 +191,8 @@ class train:
             reader = DIGINETICA()
         elif self.dataset_name == "AMAZON_M2":
             reader = AMAZON_M2()
+        elif self.dataset_name == "G1NEWS_SESSION":
+            reader = G1NEWS_SESSION()
 
         self.DATA = reader.get(self.seed, "train").copy()
 

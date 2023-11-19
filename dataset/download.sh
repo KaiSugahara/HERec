@@ -111,6 +111,30 @@ function LastFM_TAG () {
     fi
 }
 
+function REES46 () {
+    if [ ! -e "REES46/2019-Oct.csv" ]; then
+        mkdir -p REES46
+        echo "Please download 2019-Oct.csv.zip to `pwd`/REES46 and unzip it."
+        echo "The zip file is available at https://www.kaggle.com/datasets/mkechinov/ecommerce-behavior-data-from-multi-category-store/?select=2019-Oct.csv"
+    fi
+}
+
+function YOOCHOOSE () {
+    if [ ! -e "YOOCHOOSE/yoochoose-clicks.dat" ]; then
+        mkdir -p YOOCHOOSE
+        echo "Please download yoochoose-clicks.dat.zip to `pwd`/YOOCHOOSE and unzip it."
+        echo "The zip file is available at https://www.kaggle.com/datasets/chadgostopp/recsys-challenge-2015?select=yoochoose-clicks.dat"
+    fi
+}
+
+function G1_NEWS () {
+    if [ ! -e "G1_NEWS/archive.zip" ]; then
+        mkdir -p G1_NEWS
+        echo "Please download archive.zip to `pwd`/G1_NEWS and unzip it."
+        echo "The zip file is available at https://www.kaggle.com/datasets/gspmoreira/news-portal-user-interactions-by-globocom/data"
+    fi
+}
+
 if [ $1 = "INIT" ]; then
     ls | grep -v -E 'download.sh' | xargs rm -r
 elif [ $1 = "ML100K" ]; then
@@ -141,6 +165,12 @@ elif [ $1 = "Twitch100K" ]; then
     Twitch100K
 # elif [ $1 = "LastFM_TAG" ]; then
 #     LastFM_TAG
+elif [ $1 = "REES46" ]; then
+    REES46
+elif [ $1 = "YOOCHOOSE" ]; then
+    YOOCHOOSE
+elif [ $1 = "G1_NEWS" ]; then
+    G1_NEWS
 # elif [ $1 = "ALL" ]; then
 #     ML100K
 #     ML1M
