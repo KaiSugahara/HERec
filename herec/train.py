@@ -24,7 +24,7 @@ class train:
             # Trainer
             from herec.trainer import ssmTrainer as targetTrainer
             
-        elif self.model_name in ["GRU4Rec"]:
+        elif self.model_name in ["GRU4Rec", "HE_GRU4Rec"]:
 
             # Trainer
             from herec.trainer import sessionTrainer as targetTrainer
@@ -55,7 +55,7 @@ class train:
             from herec.loader import ssmLoader as targetLoader
             targetLoader.n_neg = hyparam["loader"].pop("n_neg")
             
-        elif self.model_name in ["GRU4Rec"]:
+        elif self.model_name in ["GRU4Rec", "HE_GRU4Rec"]:
 
             # DataLoader
             from herec.loader import sessionLoader as targetLoader
@@ -119,6 +119,17 @@ class train:
             from herec.model import GRU4Rec
             return GRU4Rec(
                 item_num=self.DATA["item_num"]+1,
+                GRU_LAYER_SIZES=[num := hyparam["model"].pop("gruLayerSize")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("gruLayerDepth"))],
+                FF_LAYER_SIZES=[num := hyparam["model"].pop("ffLayerSize")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("ffLayerDepth"))],
+                **hyparam["model"]
+            )
+            
+        if self.model_name == "HE_GRU4Rec":
+
+            from herec.model import HE_GRU4Rec
+            return HE_GRU4Rec(
+                item_num=self.DATA["item_num"]+1,
+                itemClusterNums=[num := hyparam["model"].pop("itemClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("itemHierarchyDepth"))],
                 GRU_LAYER_SIZES=[num := hyparam["model"].pop("gruLayerSize")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("gruLayerDepth"))],
                 FF_LAYER_SIZES=[num := hyparam["model"].pop("ffLayerSize")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("ffLayerDepth"))],
                 **hyparam["model"]
