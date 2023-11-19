@@ -10,6 +10,13 @@ class GRU4Rec(nn.Module):
     GRU_LAYER_SIZES: Sequence[int]
     FF_LAYER_SIZES: Sequence[int]
     
+    def setup(self):
+
+        self.itemEmbedder = nn.Embed(
+            num_embeddings=self.item_num,
+            features=self.embedDim
+        )
+    
     @nn.compact
     def __call__(self, INPUT):
 
@@ -32,7 +39,7 @@ class GRU4Rec(nn.Module):
         X, carry_mask = INPUT
         
         # Embed Layer
-        X = nn.Embed(num_embeddings=self.item_num, features=self.embedDim)(X)
+        X = self.itemEmbedder(X)
         
         # GRU Layer(s)
         for i, size in enumerate(self.GRU_LAYER_SIZES):
@@ -46,7 +53,6 @@ class GRU4Rec(nn.Module):
             X = nn.relu(X)
             
         # Output:
-        # インスタンス（＝行）ごとに指定されたアイテムidのレーティングを予測（部分的なDenseを行っているだけ）
         X = nn.Dense(features=self.item_num)(X)
         X = nn.softmax(X)
         
