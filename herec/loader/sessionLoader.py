@@ -29,7 +29,7 @@ class sessionLoader:
             INPUT[i] = list(itertools.chain.from_iterable( [session[:-1] for session in tmp_session_list] ))
             OUTPUT[i] = list(itertools.chain.from_iterable( [session[1:] for session in tmp_session_list] ))
             IDS[i] = list(itertools.chain.from_iterable( [[idx]*(len(session)-1) for idx, session in enumerate(tmp_session_list)] ))
-            LAST_FLAG[i] = list(itertools.chain.from_iterable( [[0]*(len(session)-2) + [1] for session in tmp_session_list] ))
+            LAST_FLAG[i] = list(itertools.chain.from_iterable( [[False]*(len(session)-2) + [True] for session in tmp_session_list] ))
 
         # 先頭をダミーIDで埋める
         batch_num = max(map(len, INPUT))
@@ -39,7 +39,7 @@ class sessionLoader:
         OUTPUT = np.array(OUTPUT)
         IDS = [[-1] * (batch_num - len(row)) + row for row in IDS]
         IDS = np.array(IDS)
-        LAST_FLAG = [[0] * (batch_num - len(row)) + row for row in LAST_FLAG]
+        LAST_FLAG = [[False] * (batch_num - len(row)) + row for row in LAST_FLAG]
         LAST_FLAG = np.array(LAST_FLAG)
         
         # マスク
