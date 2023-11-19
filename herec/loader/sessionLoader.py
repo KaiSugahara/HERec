@@ -21,6 +21,7 @@ class sessionLoader:
         INPUT = [[] for _ in range(self.batch_size)]
         OUTPUT = [[] for _ in range(self.batch_size)]
         IDS = [[] for _ in range(self.batch_size)]
+        LAST_FLAG = [[] for _ in range(self.batch_size)]
 
         # 割当
         for i in trange(self.batch_size):
@@ -28,6 +29,7 @@ class sessionLoader:
             INPUT[i] = list(itertools.chain.from_iterable( [session[:-1] for session in tmp_session_list] ))
             OUTPUT[i] = list(itertools.chain.from_iterable( [session[1:] for session in tmp_session_list] ))
             IDS[i] = list(itertools.chain.from_iterable( [[idx]*(len(session)-1) for idx, session in enumerate(tmp_session_list)] ))
+            LAST_FLAG[i] = list(itertools.chain.from_iterable( [[0]*(len(session)-2) + [1] for session in tmp_session_list] ))
 
         # 先頭をダミーIDで埋める
         batch_num = max(map(len, INPUT))
@@ -37,6 +39,8 @@ class sessionLoader:
         OUTPUT = np.array(OUTPUT)
         IDS = [[-1] * (batch_num - len(row)) + row for row in IDS]
         IDS = np.array(IDS)
+        LAST_FLAG = [[0] * (batch_num - len(row)) + row for row in LAST_FLAG]
+        LAST_FLAG = np.array(LAST_FLAG)
         
         # マスク
         MASK = np.hstack([np.zeros((self.batch_size, 1), dtype=int), (IDS[:, :-1] == IDS[:, 1:]).astype(int)])
@@ -44,12 +48,14 @@ class sessionLoader:
         # Transfer to GPU
         INPUT = jax.device_put(INPUT)
         OUTPUT = jax.device_put(OUTPUT)
-        IDS = jax.device_put(IDS)
+        MASK = jax.device_put(MASK)
+        LAST_FLAG = jax.device_put(LAST_FLAG)
 
         # 保持
         self.INPUT = INPUT
         self.OUTPUT = OUTPUT
         self.MASK = MASK
+        self.LAST_FLAG = LAST_FLAG
 
         return self
 
