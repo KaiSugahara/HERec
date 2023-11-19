@@ -50,4 +50,4 @@ trainer:
   es_patience:
     type: categorical
     choices:
-      - 10
+      - 5
