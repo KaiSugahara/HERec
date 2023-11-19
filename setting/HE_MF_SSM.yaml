@@ -14,7 +14,7 @@ model:
     type: int
     low: 10
     high: 1000
-    log: True
+    log: False
   itemHierarchyDepth:
     type: int
     low: 1
@@ -24,7 +24,7 @@ model:
     type: int
     low: 10
     high: 1000
-    log: True
+    log: False
 
 # TRAINER
 trainer:
