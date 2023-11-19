@@ -20,7 +20,7 @@ class sessionBase():
 
         # Reset IDs
         item_ids = pl.concat([df_TRAIN, df_EVALUATION]).get_column("item_list").explode().unique(maintain_order=True)
-        item_id_map = dict(zip(item_ids, range(len(item_ids))))
+        item_id_map = dict(zip(item_ids, range(1, len(item_ids)+1)))
         item_num = len(item_id_map)
         df_TRAIN = df_TRAIN.with_columns(
             pl.col("item_list").list.eval( pl.element().map_dict(item_id_map) ),

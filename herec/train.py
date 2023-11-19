@@ -118,7 +118,7 @@ class train:
 
             from herec.model import GRU4Rec
             return GRU4Rec(
-                item_num=self.DATA["item_num"],
+                item_num=self.DATA["item_num"]+1,
                 GRU_LAYER_SIZES=[num := hyparam["model"].pop("gruLayerSize")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("gruLayerDepth"))],
                 FF_LAYER_SIZES=[num := hyparam["model"].pop("ffLayerSize")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparam["model"].pop("ffLayerDepth"))],
                 **hyparam["model"]
