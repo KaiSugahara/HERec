@@ -18,13 +18,6 @@ class sessionBase():
         else:
             raise Exception()
 
-        # # Remove Cold Users/Items from VALID subset
-        # df_EVALUATION = df_EVALUATION.filter(
-        #     pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique() )
-        # ).filter(
-        #     pl.col("item_id").is_in( df_TRAIN.get_column("item_id").unique() )
-        # )
-
         # Reset IDs
         item_ids = pl.concat([df_TRAIN, df_EVALUATION]).get_column("item_list").explode().unique(maintain_order=True)
         item_id_map = dict(zip(item_ids, range(len(item_ids))))
@@ -35,6 +28,9 @@ class sessionBase():
         df_EVALUATION = df_EVALUATION.with_columns(
             pl.col("item_list").list.eval( pl.element().map_dict(item_id_map) ),
         )
+        
+        # Sort Rows for Efficiently Evaluation
+        df_EVALUATION = df_EVALUATION.sort( pl.col("item_list").list.len() )
 
         return {
             "df_TRAIN": df_TRAIN,
