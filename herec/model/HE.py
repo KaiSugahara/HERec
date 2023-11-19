@@ -8,6 +8,7 @@ class HE(nn.Module):
     objNum: int
     clusterNums: Sequence[int]
     embedDim: int
+    temperature: int = 1
 
     def setup( self ):
 
@@ -22,6 +23,17 @@ class HE(nn.Module):
         self.connectionMatrix += (self.param(f'connectionMatrix_1', lambda rng: jax.random.normal(rng, (self.objNum, self.clusterNums[0]), jnp.float32)),)
         for level in range(2, self.depth+1):
             self.connectionMatrix += (self.param(f'connectionMatrix_{level}', lambda rng: jax.random.normal(rng, (self.clusterNums[level-2], self.clusterNums[level-1]), jnp.float32)),)
+            
+    def __softmax_with_temperature( self, x, axis=-1, where=None, initial=None ):
+
+        """
+            func:
+                Softmax with Temperature
+        """
+
+        x_max = jnp.max(x, axis, where=where, initial=initial, keepdims=True)
+        unnormalized = jnp.exp((x - jax.lax.stop_gradient(x_max)) / self.temperature)
+        return unnormalized / jnp.sum(unnormalized, axis, where=where, keepdims=True)
 
     def getEmbed( self, ids: list ):
 
@@ -36,7 +48,7 @@ class HE(nn.Module):
                     Embedding matrix with rows corresponding to target object embeddings
         """
 
-        return nn.softmax(self.connectionMatrix[1][ids]) @ self.getEmbedByLevel(1)
+        return self.__softmax_with_temperature(self.connectionMatrix[1][ids]) @ self.getEmbedByLevel(1)
 
     def getConnectionMatrix( self, level: int ):
 
@@ -53,7 +65,7 @@ class HE(nn.Module):
                 The output matrix is normalized by softmax row by row to imply a stochastic transition matrix
         """
 
-        return nn.softmax(self.connectionMatrix[level])
+        return self.__softmax_with_temperature(self.connectionMatrix[level])
 
     def getEmbedByLevel( self, level: int ):
 

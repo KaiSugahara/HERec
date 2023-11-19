@@ -9,6 +9,7 @@ class HE_GRU4Rec(nn.Module):
     
     item_num: int
     itemClusterNums: list
+    temperature: float
     embedDim: int
     GRU_LAYER_SIZES: Sequence[int]
     FF_LAYER_SIZES: Sequence[int]
@@ -19,6 +20,7 @@ class HE_GRU4Rec(nn.Module):
             objNum = self.item_num,
             clusterNums = self.itemClusterNums,
             embedDim = self.embedDim,
+            temperature = self.temperature,
         )
     
     @nn.compact
