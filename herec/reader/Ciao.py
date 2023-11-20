@@ -1,7 +1,7 @@
 import polars as pl
 import scipy.io
 from .ratingBase import ratingBase
-from herec.utils import *
+from ..utils.getRepositoryPath import getRepositoryPath
 
 class Ciao(ratingBase):
 

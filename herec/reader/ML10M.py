@@ -1,6 +1,6 @@
 import polars as pl
 from .ratingBase import ratingBase
-from herec.utils import *
+from ..utils.getRepositoryPath import getRepositoryPath
 
 class ML10M(ratingBase):
 

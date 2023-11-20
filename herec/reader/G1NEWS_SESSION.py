@@ -1,7 +1,7 @@
 import pandas as pd
 import polars as pl
 from .sessionBase import sessionBase
-from herec.utils import *
+from ..utils.getRepositoryPath import getRepositoryPath
 from glob import glob
 
 class G1NEWS_SESSION(sessionBase):

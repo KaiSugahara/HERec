@@ -1,7 +1,7 @@
 import pandas as pd
 import polars as pl
 from .sessionBase import sessionBase
-from herec.utils import *
+from ..utils.getRepositoryPath import getRepositoryPath
 
 class AMAZON_M2(sessionBase):
 

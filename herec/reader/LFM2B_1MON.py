@@ -1,6 +1,6 @@
 import polars as pl
 from .implicitBase import implicitBase
-from herec.utils import *
+from ..utils.getRepositoryPath import getRepositoryPath
 
 class LFM2B_1MON(implicitBase):
 
