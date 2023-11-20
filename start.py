@@ -59,8 +59,8 @@ for dataset_name in args.dataset:
     for seed in args.seed:
 
         train(
-            model_name = args.model,
-            dataset_name = dataset_name,
+            modelName = args.model,
+            datasetName = dataset_name,
             suggester = suggester,
             seed = seed,
             memo = args.memo,
