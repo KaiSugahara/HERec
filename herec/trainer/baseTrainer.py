@@ -237,7 +237,7 @@ class baseTrainer:
             self.variables = init_variables
 
         # 定義：Optimizer
-        tx = optax.adamw(learning_rate=self.learning_rate, weight_decay=(self.weight_decay/self.learning_rate))
+        tx = optax.adamw(learning_rate=self.learning_rate, weight_decay=self.weight_decay)
 
         # 定義：モデルパラメータの状態
         self.state = train_state.TrainState.create(apply_fn=self.model.apply, params=params, tx=tx)
