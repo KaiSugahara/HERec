@@ -54,7 +54,7 @@ class test:
         result_df = resultLoader( f"HeRec-TRAIN-{self.datasetName}-{self.modelName}" ).get_results_by_fold( self.seed )
         
         # Check
-        if result_df.height != 100:
+        if result_df.height != 50:
             raise Exception("Please evaluate test set after valiadation")
 
         # Get Hyparam. Setting with Best Validation Score
