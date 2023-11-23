@@ -36,7 +36,7 @@ class resultLoader:
         result_df = pl.from_pandas(mlflow.search_runs(experiment_ids=[self.experiment_id]))
     
         # Sort by BEST_VALID_LOSS
-        result_df = result_df.sort("metrics.BEST_VALID_LOSS")
+        result_df = result_df.sort("metrics.BEST_VALID_LOSS", descending=False)
     
         # Set
         self.result_df = result_df
