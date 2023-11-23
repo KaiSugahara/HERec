@@ -8,23 +8,27 @@ class FM(nn.Module):
     item_num: int
     embedDim: int
     
+    def setup(self):
+        
+        self.userBias = nn.Embed(num_embeddings=self.user_num, features=1)
+        self.itemBias = nn.Embed(num_embeddings=self.item_num, features=1)
+        self.userEmbedder = nn.Embed(num_embeddings=self.user_num, features=1)
+        self.itemEmbedder = nn.Embed(num_embeddings=self.item_num, features=1)
+    
     @nn.compact
     def __call__(self, INPUT):
         
         user_ids = INPUT[:, 0]
         item_ids = INPUT[:, 1]
-
-        # Encode Multi-hot Vector
-        X = jnp.hstack([
-            jax.nn.one_hot(user_ids, num_classes=self.user_num),
-            jax.nn.one_hot(item_ids, num_classes=self.item_num),
-        ])
+        
+        # Bias Term
+        w0 = self.param(f'biasTerm', lambda rng: jax.random.normal(rng, (1, 1), jnp.float32))
 
         # Linear Regression Term
-        result_X = nn.Dense(features=1)(X).reshape(-1)
+        userLinearTerm = self.userBias(user_ids)
+        itemLinearTerm = self.itemBias(item_ids)
 
         # Interaction Term
-        V = self.param(f'latentMatrix', lambda rng: jax.random.normal(rng, ((self.user_num + self.item_num), self.embedDim), jnp.float32))
-        interaction_X = jnp.sum((X.dot(V))**2 - (X**2).dot(V**2), axis=1) / 2
+        interactionTerm = jnp.sum( self.userEmbedder(user_ids) * self.itemEmbedder(item_ids), axis=1, keepdims=True )
         
-        return (result_X + interaction_X).reshape(-1, 1)
+        return w0 + userLinearTerm + itemLinearTerm + interactionTerm
