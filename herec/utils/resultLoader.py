@@ -1,5 +1,4 @@
 import polars as pl
-from tqdm import tqdm
 import mlflow
 from dotenv import load_dotenv
 from herec.utils import *
@@ -35,15 +34,6 @@ class resultLoader:
 
         # Load from MLflow
         result_df = pl.from_pandas(mlflow.search_runs(experiment_ids=[self.experiment_id]))
-            
-        # Get column names related to metrics
-        # metric_column_names = [name for name in result_df.columns if (name.startswith("metrics.")) and (name != "metrics.BEST_VALID_LOSS")]
-        
-        # Get step-wise metrics
-        # result_df = result_df.with_columns(
-        #     pl.Series([self.get_step_wise_scores(run_id, col_name.replace("metrics.", "")) for run_id in tqdm(result_df.get_column("run_id"), desc=col_name)]).alias(col_name)
-        #     for col_name in metric_column_names
-        # )
     
         # Sort by BEST_VALID_LOSS
         result_df = result_df.sort("metrics.BEST_VALID_LOSS")
