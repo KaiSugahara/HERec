@@ -22,11 +22,9 @@ class implicitBase():
         df_TRAIN = df_TRAIN.unique(["user_id", "item_id"])
         df_EVALUATION = df_EVALUATION.unique(["user_id", "item_id"])
 
-        # Remove Cold Users/Items from VALID subset
+        # Remove Cold Users from VALID subset
         df_EVALUATION = df_EVALUATION.filter(
             pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique(maintain_order=True) )
-        ).filter(
-            pl.col("item_id").is_in( df_TRAIN.get_column("item_id").unique(maintain_order=True) )
         )
 
         # Reset IDs
