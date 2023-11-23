@@ -2,6 +2,7 @@ import argparse
 
 from herec.utils import *
 from herec.train import train
+from herec.test import test
 
 """
     0. Parse Input Arguments
@@ -54,7 +55,7 @@ args = parser.parse_args()
 # Set Hyper-parameter Suggester
 suggester = hyParamSuggester(args.config)
 
-# Train on Specified datasets and seeds
+# Train/Test on Specified datasets and seeds
 for dataset_name in args.dataset:
     for seed in args.seed:
 
@@ -62,6 +63,13 @@ for dataset_name in args.dataset:
             modelName = args.model,
             datasetName = dataset_name,
             suggester = suggester,
+            seed = seed,
+            memo = args.memo,
+        )
+        
+        test(
+            modelName = args.model,
+            datasetName = dataset_name,
             seed = seed,
             memo = args.memo,
         )

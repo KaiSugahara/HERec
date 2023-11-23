@@ -1,6 +1,5 @@
 from dotenv import load_dotenv
 import mlflow
-import math
 import optuna
 from herec.reader import *
 from herec.utils import *
@@ -52,7 +51,7 @@ class train:
 
         load_dotenv(".env")
 
-        EXPERIMENT_NAME = f"HeRec-{self.modelName}-{self.datasetName}"
+        EXPERIMENT_NAME = f"HeRec-TRAIN-{self.datasetName}-{self.modelName}"
         if (experiment := mlflow.get_experiment_by_name(EXPERIMENT_NAME)) is None:
             self.experiment_id = mlflow.create_experiment(name=EXPERIMENT_NAME)
         else:
