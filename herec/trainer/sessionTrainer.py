@@ -25,7 +25,7 @@ class sessionTrainer(baseTrainer):
             df_MINIBATCH = df_VALID[row_index:row_index+batchSize]
 
             # Set DataLoader
-            loader = self.dataLoader(jax.random.PRNGKey(0), df_MINIBATCH, df_MINIBATCH.height)
+            loader = self.dataLoader(jax.random.PRNGKey(0), df_MINIBATCH, df_MINIBATCH.height, fill_dummies=True)
 
             # Initialize
             variables = self.variables

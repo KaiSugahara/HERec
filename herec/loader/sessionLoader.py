@@ -30,14 +30,21 @@ class sessionLoader:
             OUTPUT[i] = list(itertools.chain.from_iterable( [session[1:] for session in tmp_session_list] ))
             IDS[i] = list(itertools.chain.from_iterable( [[idx]*(len(session)-1) for idx, session in enumerate(tmp_session_list)] ))
 
-        # 先頭をダミーIDで埋める
-        batch_num = max(map(len, INPUT))
-        INPUT = [[0] * (batch_num - len(row)) + row for row in INPUT]
-        INPUT = np.array(INPUT)
-        OUTPUT = [[0] * (batch_num - len(row)) + row for row in OUTPUT]
-        OUTPUT = np.array(OUTPUT)
-        IDS = [[-1] * (batch_num - len(row)) + row for row in IDS]
-        IDS = np.array(IDS)
+        # 余りの処理
+        if self.fill_dummies:
+            # 先頭をダミーIDで埋める
+            batch_num = max(map(len, INPUT))
+            INPUT = [[0] * (batch_num - len(row)) + row for row in INPUT]
+            INPUT = np.array(INPUT)
+            OUTPUT = [[0] * (batch_num - len(row)) + row for row in OUTPUT]
+            OUTPUT = np.array(OUTPUT)
+            IDS = [[-1] * (batch_num - len(row)) + row for row in IDS]
+            IDS = np.array(IDS)
+        else:
+            batch_num = min(map(len, INPUT))
+            INPUT = np.array([row[:batch_num] for row in INPUT])
+            OUTPUT = np.array([row[:batch_num] for row in OUTPUT])
+            IDS = np.array([row[:batch_num] for row in IDS])
         
         # マスク
         MASK = np.hstack([np.zeros((self.batch_size, 1), dtype=int), (IDS[:, :-1] == IDS[:, 1:]).astype(int)])
@@ -54,7 +61,9 @@ class sessionLoader:
 
         return self
 
-    def __init__(self, key, df_DATA, batch_size):
+    def __init__(self, key, df_DATA, batch_size, fill_dummies=False):
+        
+        self.fill_dummies = fill_dummies
         
         # Set batch_size
         self.batch_size = batch_size
