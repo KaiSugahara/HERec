@@ -8,6 +8,10 @@ def getTrainer(modelName: str):
 
         from herec.trainer import bprTrainer as targetTrainer
         
+    elif modelName in ["MF_BCE", "HE_MF_BCE"]:
+
+        from herec.trainer import bceTrainer as targetTrainer
+        
     elif modelName in ["MF_SSM", "HE_MF_SSM"]:
 
         from herec.trainer import ssmTrainer as targetTrainer

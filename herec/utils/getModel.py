@@ -3,7 +3,7 @@ from ..model import *
 
 def getModel(modelName: str, hyparams: dict, DATA: dict):
     
-    if modelName in ["MF", "MF_BPR", "MF_SSM"]:
+    if modelName in ["MF", "MF_BPR", "MF_BCE", "MF_SSM"]:
             
         return MF(
             user_num=DATA["user_num"],
@@ -11,7 +11,7 @@ def getModel(modelName: str, hyparams: dict, DATA: dict):
             **hyparams["model"]
         )
 
-    if modelName in ["HE_MF", "HE_MF_BPR", "HE_MF_SSM"]:
+    if modelName in ["HE_MF", "HE_MF_BPR", "HE_MF_BCE", "HE_MF_SSM"]:
 
         return HE_MF(
             user_num=DATA["user_num"],
