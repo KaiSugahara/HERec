@@ -30,8 +30,8 @@ class implicitBase():
         df_EVALUATION = pl.concat([df_TRAIN, df_TRAIN, df_EVALUATION]).group_by("user_id", "item_id").count().filter(pl.col("count") == 1) # Note: Do double-count for df_TRAIN
         
         # Drop unused columns
-        df_TRAIN = df_TRAIN.drop("timestamp")
-        df_EVALUATION = df_EVALUATION.drop("count")
+        df_TRAIN = df_TRAIN.select("user_id", "item_id")
+        df_EVALUATION = df_EVALUATION.select("user_id", "item_id")
 
         # Reset IDs
         user_ids = pl.concat([df_TRAIN, df_EVALUATION]).get_column("user_id").unique(maintain_order=True)
@@ -52,8 +52,10 @@ class implicitBase():
         # Add Positive Item IDs for Each User in TRAIN subset
         df_TRAIN = df_TRAIN.group_by("user_id", maintain_order=True).agg(
             pl.col("item_id"),
-            pl.col("item_id").list.unique().alias("pos_item_ids"),
-        ).explode("item_id")
+            pl.col("item_id").alias("pos_item_ids"),
+        ).explode("item_id").with_columns(
+            pl.col("pos_item_ids").list.unique()
+        )
 
         # Add Positive Item IDs for Each User in VALID subset
         df_EVALUATION = df_EVALUATION.group_by("user_id", maintain_order=True).agg(
