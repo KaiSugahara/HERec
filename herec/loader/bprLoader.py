@@ -3,33 +3,6 @@ import math
 import polars as pl
 
 class bprLoader:
-    
-    def add_neg_item_id(self, df):
-
-        # Negative Sampling: Initialize
-        column_name = f"neg_item_id"
-        df = df.with_columns( pl.lit(-1).alias(column_name), dup_num=True )
-
-        step = 0
-        
-        while df.get_column("dup_num").any():
-        
-            # Sampling
-            df = df.with_columns(
-                pl.when( pl.col("dup_num") )
-                .then( pl.col("item_id").sample(df.height, with_replacement=True, shuffle=True, seed=step).alias( column_name ) )
-                .otherwise( pl.col(column_name) )
-            )
-            # Check Duplicates between Positive and Negative Items
-            df = df.with_columns(
-                pl.when( pl.col("dup_num") )
-                .then( pl.col("pos_item_ids").list.contains(pl.col(column_name)).alias("dup_num") )
-                .otherwise( pl.col("dup_num") )
-            )
-
-            step += 1
-
-        return df.select("user_id", "item_id", "neg_item_id")
 
     def __init__(self, key, df_DATA, batch_size):
         
@@ -45,14 +18,36 @@ class bprLoader:
         # Make Shuffled Indices of Data
         self.shuffled_indices = jax.random.permutation(key, self.data_size)
 
-        # Shuffle
-        df_X = df_DATA.sample(df_DATA.height, shuffle=True, seed=key[0].tolist())
+        # Clone
+        df_X = df_DATA.clone()
 
-        # Split to MiniBatch with Negative Sampling
-        self.X_list = [
-            jax.device_put( self.add_neg_item_id(df_X[start_idx:(start_idx+batch_size)]).to_numpy() )
-            for start_idx in range(0, df_X.height, batch_size)
-        ]
+        # Extract Item Num.
+        item_num = df_X["item_id"].n_unique()
+
+        # Negative Sampling: Initialize
+        column_name = f"neg_item_id"
+        df_X = df_X.with_columns( pl.lit(-1).alias(column_name), dup_num=True )
+
+        while df_X.get_column("dup_num").any():
+            
+            # Sampling
+            df_X = df_X.with_columns(
+                pl.when( pl.col("dup_num") )
+                .then( pl.arange(0, item_num).sample(self.data_size, with_replacement=True).alias(column_name) )
+                .otherwise( pl.col(column_name) )
+            )
+            # Check Duplicates between Positive and Negative Items
+            df_X = df_X.with_columns(
+                pl.when( pl.col("dup_num") )
+                .then( pl.col("pos_item_ids").list.contains(pl.col(column_name)).alias("dup_num") )
+                .otherwise( pl.col("dup_num") )
+            )
+
+        # Convert to Matrix
+        self.X = jax.device_put(df_X.select("user_id", "item_id", "neg_item_id").to_numpy())
+        
+        # Shuffle rows of X
+        self.X = self.X[self.shuffled_indices]
 
     def __iter__(self):
         
@@ -71,7 +66,9 @@ class bprLoader:
         else:
             
             # Extract {batch_idx}-th Minibatch
-            X = self.X_list[self.batch_idx]
+            start_index = self.batch_size * self.batch_idx
+            slice_size = min( self.batch_size, (self.data_size - start_index) )
+            X = jax.lax.dynamic_slice_in_dim(self.X, start_index, slice_size)
             
             # Update batch-index
             self.batch_idx += 1
