@@ -8,7 +8,7 @@ class HE(nn.Module):
     objNum: int
     clusterNums: Sequence[int]
     embedDim: int
-    temperature: int = 1
+    temperature: int
 
     def setup( self ):
 
