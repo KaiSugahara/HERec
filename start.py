@@ -13,7 +13,7 @@ parser.add_argument(
     '-m', "--model",
     choices=[
         "MF", "HE_MF", "FM", "HE_FM",
-        "MF_BPR", "HE_MF_BPR", "MF_SSM", "HE_MF_SSM",
+        "MF_BPR", "HE_MF_BPR", "MF_BCE", "HE_MF_BCE", "MF_SSM", "HE_MF_SSM",
         "GRU4Rec", "HE_GRU4Rec",
     ],
     help='name of the model to be trained and tested',
