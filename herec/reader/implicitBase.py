@@ -23,7 +23,8 @@ class implicitBase():
             pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique(maintain_order=True) )
         )
 
-        # Leave First Interaction (Be Unique) in validation set
+        # Leave First Interaction (Be Unique) in each set
+        df_TRAIN = df_TRAIN.unique(["user_id", "item_id"])
         df_EVALUATION = df_EVALUATION.unique(["user_id", "item_id"])
 
         # Remove items already known in training set from validation set
