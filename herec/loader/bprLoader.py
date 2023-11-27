@@ -6,6 +6,8 @@ class bprLoader:
 
     def __init__(self, key, df_DATA, batch_size):
         
+        pl.set_random_seed( key[0].tolist() )
+        
         # Set batch_size
         self.batch_size = batch_size
         
@@ -33,7 +35,7 @@ class bprLoader:
             # Sampling
             df_X = df_X.with_columns(
                 pl.when( pl.col("dup_num") )
-                .then( pl.arange(0, item_num).sample(self.data_size, with_replacement=True).alias(column_name) )
+                .then( pl.col("item_id").sample(df_X.height, shuffle=True, with_replacement=True).alias(column_name) )
                 .otherwise( pl.col(column_name) )
             )
             # Check Duplicates between Positive and Negative Items
