@@ -1,5 +1,6 @@
 __pycache__
 .ipynb_checkpoints
+*.sh
 /dataset/*
 !/dataset/download.sh
 /checkpoint
