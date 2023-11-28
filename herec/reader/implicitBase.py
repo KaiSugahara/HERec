@@ -26,9 +26,6 @@ class implicitBase():
         # Leave First Interaction (Be Unique) in each set
         df_TRAIN = df_TRAIN.unique(["user_id", "item_id"], maintain_order=True)
         df_EVALUATION = df_EVALUATION.unique(["user_id", "item_id"], maintain_order=True)
-
-        # Remove items already known in training set from validation set
-        df_EVALUATION = pl.concat([df_TRAIN, df_TRAIN, df_EVALUATION]).group_by("user_id", "item_id", maintain_order=True).count().filter(pl.col("count") == 1) # Note: Do double-count for df_TRAIN
         
         # Drop unused columns
         df_TRAIN = df_TRAIN.select("user_id", "item_id")
