@@ -58,9 +58,10 @@ trainer:
     high: 1e-1
     log: True
   weight_decay:
-    type: categorical
-    choices:
-      - 0
+    type: float
+    low: 1e-5
+    high: 1e+1
+    log: True
   es_patience:
     type: categorical
     choices:
