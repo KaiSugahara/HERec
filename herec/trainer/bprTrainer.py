@@ -75,8 +75,15 @@ class bprTrainer(baseTrainer):
         # Predict Scores for Negative Items
         PRED_neg = jnp.hstack([self.model.apply({'params': params}, X[:, (0, i)]) for i in range(2, X.shape[1])])
 
-        # Calculation BPR Loss
-        loss = - jnp.mean(jnp.log(jax.nn.sigmoid(PRED_pos - PRED_neg)))
+        # Calculate BPR cost for sampling pairs
+        cost = - jnp.log(jax.nn.sigmoid(PRED_pos - PRED_neg))
+
+        # Weight by popularity if needed
+        if Y is not None:
+            cost = cost * Y
+
+        # Calculate Loss
+        loss = jnp.mean(cost)
 
         return loss, variables
 

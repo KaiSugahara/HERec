@@ -71,14 +71,21 @@ class bceTrainer(baseTrainer):
 
         # Predict Scores for Positive Items
         PRED_pos = self.model.apply({'params': params}, X[:, (0, 1)])
-        PRED_pos = jnp.log(jax.nn.sigmoid(PRED_pos))
 
         # Predict Scores for Negative Items
         PRED_neg = jnp.hstack([self.model.apply({'params': params}, X[:, (0, i)]) for i in range(2, X.shape[1])])
-        PRED_neg = jnp.log(1 - jax.nn.sigmoid(PRED_neg))
 
-        # Calculation BCE Loss
-        loss = (- PRED_pos.mean(axis=0).sum()) + (- PRED_neg.mean(axis=0).sum())
+        # Calculate BCE cost for sampling pairs
+        PRED_pos = jnp.log(jax.nn.sigmoid(PRED_pos))
+        PRED_neg = jnp.log(1 - jax.nn.sigmoid(PRED_neg))
+        loss = jnp.hstack([(- PRED_pos * PRED_neg.shape[1]), (- PRED_neg)])
+        
+        # Weight by popularity if needed
+        if Y is not None:
+            cost = cost * Y
+
+        # Calculate Loss
+        loss = jnp.mean(cost)
 
         return loss, variables
 
