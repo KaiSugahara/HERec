@@ -63,3 +63,8 @@ loader:
     low: 1
     high: 10
     log: True
+  has_weight:
+    type: categorical
+    choices:
+      - True
+      - False
