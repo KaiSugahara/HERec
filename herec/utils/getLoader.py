@@ -4,21 +4,9 @@ def getLoader(modelName: str, hyparams: dict):
 
         from ..loader import ratingLoader as targetLoader
 
-    elif modelName in ["MF_BPR", "HE_MF_BPR"]:
+    elif modelName in ["MF_BPR", "HE_MF_BPR", "MF_BCE", "HE_MF_BCE", "MF_SSM", "HE_MF_SSM"]:
 
-        from ..loader import bprLoader as targetLoader
-        targetLoader.n_neg = hyparams["loader"].pop("n_neg")
-        targetLoader.has_weight = hyparams["loader"].pop("has_weight")
-        
-    elif modelName in ["MF_BCE", "HE_MF_BCE"]:
-
-        from ..loader import bceLoader as targetLoader
-        targetLoader.n_neg = hyparams["loader"].pop("n_neg")
-        targetLoader.has_weight = hyparams["loader"].pop("has_weight")
-        
-    elif modelName in ["MF_SSM", "HE_MF_SSM"]:
-
-        from ..loader import ssmLoader as targetLoader
+        from ..loader import implicitLoader as targetLoader
         targetLoader.n_neg = hyparams["loader"].pop("n_neg")
         targetLoader.has_weight = hyparams["loader"].pop("has_weight")
         
