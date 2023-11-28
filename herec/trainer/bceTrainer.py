@@ -78,14 +78,16 @@ class bceTrainer(baseTrainer):
         # Calculate BCE cost for sampling pairs
         PRED_pos = jnp.log(jax.nn.sigmoid(PRED_pos))
         PRED_neg = jnp.log(1 - jax.nn.sigmoid(PRED_neg))
-        loss = jnp.hstack([(- PRED_pos * PRED_neg.shape[1]), (- PRED_neg)])
+        cost = jnp.hstack([-PRED_pos]*PRED_neg.shape[1] + [-PRED_neg])
         
-        # Weight by popularity if needed
+        # Weight Cost and Average
         if Y is not None:
             cost = cost * Y
-
-        # Calculate Loss
-        loss = jnp.mean(cost)
+            cost = cost.sum(axis=0) / Y.sum()
+            loss = cost.mean()
+        else:
+            cost = cost.mean(axis=0)
+            loss = cost.mean()
 
         return loss, variables
 

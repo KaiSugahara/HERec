@@ -78,12 +78,14 @@ class bprTrainer(baseTrainer):
         # Calculate BPR cost for sampling pairs
         cost = - jnp.log(jax.nn.sigmoid(PRED_pos - PRED_neg))
 
-        # Weight by popularity if needed
+        # Weight Cost and Average
         if Y is not None:
             cost = cost * Y
-
-        # Calculate Loss
-        loss = jnp.mean(cost)
+            cost = cost.sum(axis=0) / Y.sum()
+            loss = cost.mean()
+        else:
+            cost = cost.mean(axis=0)
+            loss = cost.mean()
 
         return loss, variables
 
