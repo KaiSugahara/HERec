@@ -20,7 +20,7 @@ class bceTrainer(baseTrainer):
         Y = self.model.apply({"params": params}, user_ids, method=self.model.get_all_scores_by_user_ids)
         
         # Top Rows
-        pred_items = (-Y).argsort(axis=1)[:, :30]
+        pred_items = (-Y).argsort(axis=1)[:, :100]
 
         return pred_items
     
@@ -45,7 +45,7 @@ class bceTrainer(baseTrainer):
         metrics = {}
 
         # Calc.
-        for k in [10, 30]:
+        for k in [10, 30, 50, 100]:
             
             # Precision
             metrics[f"Precision_{k}"] = np.mean(pred_flag[:, :k].sum(axis=1) / k)
