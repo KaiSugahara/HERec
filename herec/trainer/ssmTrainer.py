@@ -47,6 +47,9 @@ class ssmTrainer(baseTrainer):
         # Calc.
         for k in [10, 30, 50, 100]:
             
+            # HitRate
+            metrics[f"HitRate_{k}"] = pred_flag[:, :k].max(axis=1).mean()
+            
             # Precision
             metrics[f"Precision_{k}"] = np.mean(pred_flag[:, :k].sum(axis=1) / k)
             
