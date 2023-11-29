@@ -62,10 +62,14 @@ loader:
   n_neg:
     type: int
     low: 1
-    high: 10
-    log: True
+    high: 20
+    log: False
   has_weight:
     type: categorical
     choices:
-      - True
       - False
+  sampler:
+    type: categorical
+    choices:
+      - "random"
+      - "pop"

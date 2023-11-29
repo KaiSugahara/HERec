@@ -6,6 +6,7 @@ class implicitLoader:
     
     n_neg: int
     has_weight: bool
+    sampler: str
 
     def __init__(self, key, df_DATA, batch_size):
         
@@ -42,11 +43,18 @@ class implicitLoader:
                 # Generate Key for sampling
                 key, subkey = jax.random.split(key)
                 # Sampling
-                df_X = df_X.with_columns(
-                    pl.when( pl.col("dup_num") )
-                    .then( pl.arange(0, item_num).sample(self.data_size, with_replacement=True, seed=subkey.tolist()[0]).alias(column_name) )
-                    .otherwise( pl.col(column_name) )
-                )
+                if self.sampler == "random":
+                    df_X = df_X.with_columns(
+                        pl.when( pl.col("dup_num") )
+                        .then( pl.arange(0, item_num).sample(self.data_size, shuffle=True, with_replacement=True, seed=subkey.tolist()[0]).alias(column_name) )
+                        .otherwise( pl.col(column_name) )
+                    )
+                elif self.sampler == "pop":
+                    df_X = df_X.with_columns(
+                        pl.when( pl.col("dup_num") )
+                        .then( pl.col("item_id").sample(self.data_size, shuffle=True, with_replacement=True, seed=subkey.tolist()[0]).alias(column_name) )
+                        .otherwise( pl.col(column_name) )
+                    )
                 # Check Duplicates between Positive and Negative Items
                 df_X = df_X.with_columns(
                     pl.when( pl.col("dup_num") )
