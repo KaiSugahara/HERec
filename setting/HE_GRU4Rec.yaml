@@ -35,11 +35,6 @@ model:
     low: 10
     high: 1000
     log: False
-  temperature:
-    type: float
-    low: 1e-1
-    high: 1e+1
-    log: True
 
 # TRAINER
 trainer:
