@@ -3,7 +3,7 @@ from glob import glob
 
 def restoreModelParams(run_id, epoch_id = None):
 
-    paths = glob(f"checkpoint/{run_id}/*")
+    paths = glob(f"checkpoint/{run_id}/*[0-9]*")
     if len(paths) == 0: raise Exception(f"run_id {run_id} does not exist")
     
     saved_epochs = sorted(map(lambda path: int(path.rsplit("/", 1)[1]), paths))
