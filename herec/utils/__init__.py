@@ -7,4 +7,5 @@ from .hyParamSuggester import hyParamSuggester
 from .restoreModelParams import restoreModelParams
 from .restoreVariables import restoreVariables
 from .resultLoader import resultLoader
+from .sparsemax import sparsemax
 from .topkWeightedMean import topkWeightedMean
