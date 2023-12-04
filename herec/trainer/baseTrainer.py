@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from pathlib import Path
 import orbax.checkpoint
-from flax.training import orbax_utils
+from flax.training import checkpoints, orbax_utils
 
 class baseTrainer:
 
@@ -263,6 +263,11 @@ class baseTrainer:
         ckpt = self.state.params
         save_args = orbax_utils.save_args_from_target(ckpt)
         self.checkpoint_manager.save(0, ckpt, save_kwargs={'save_args': save_args})
+        
+        # Save Variables at step=0
+        if len(self.variables.keys()) > 0:
+            ckpt_path = Path(self.ckpt_dir) / Path(self.run.info.run_id) / Path("variables")
+            checkpoints.save_checkpoint(ckpt_path, self.variables, step=0)
 
         # 学習
         for epoch_i in range(1, self.epochNum+1):
