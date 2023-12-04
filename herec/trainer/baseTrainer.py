@@ -267,7 +267,13 @@ class baseTrainer:
         # Save Variables at step=0
         if len(self.variables.keys()) > 0:
             ckpt_path = Path(self.ckpt_dir) / Path(self.run.info.run_id) / Path("variables")
-            checkpoints.save_checkpoint(ckpt_path, self.variables, step=0)
+            tmp_checkpoint_manager = orbax.checkpoint.CheckpointManager(
+                ckpt_path,
+                orbax.checkpoint.PyTreeCheckpointer(),
+            )
+            ckpt = self.variables
+            save_args = orbax_utils.save_args_from_target(ckpt)
+            tmp_checkpoint_manager.save(0, ckpt, save_kwargs={'save_args': save_args})
 
         # 学習
         for epoch_i in range(1, self.epochNum+1):
