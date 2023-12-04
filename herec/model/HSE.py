@@ -16,7 +16,7 @@ class HSE(nn.Module):
 
         # Root-node Embeddings
         radius = self.param(f'radius', lambda rng: jnp.ones(1))
-        self.rootMatrix = radius * self.variable('rootMatrix', 'embedding', lambda: self.generate_root_matrix(jax.random.PRNGKey(0), radius, self.clusterNums[-1], self.embedDim)).value
+        self.rootMatrix = radius * self.variable('rootMatrix', 'embedding', lambda: self.generate_root_matrix(jax.random.PRNGKey(0), self.clusterNums[-1], self.embedDim)).value
 
         # Connection Matrices
         self.connectionMatrix = (None,)
@@ -25,25 +25,12 @@ class HSE(nn.Module):
             col_num = self.clusterNums[level-1]
             self.connectionMatrix += (self.param(f'connectionMatrix_{level}', lambda rng: jax.random.normal(rng, (row_num, col_num), jnp.float32)),)
             
-    def generate_root_matrix( self, key, r, rootObjNum, embedDim ):
-
-        thetaMatrix = jnp.hstack([
-            jax.random.uniform( jax.random.PRNGKey(0), shape=(rootObjNum, embedDim-2), minval=(-jnp.pi/2), maxval=(jnp.pi/2) ),
-            jax.random.uniform( jax.random.PRNGKey(0), shape=(rootObjNum, 1), minval=(-jnp.pi), maxval=(jnp.pi) ),
-        ])
-        sinMatrix = jnp.sin(thetaMatrix)
-        cosMatrix = jnp.cos(thetaMatrix)
+    def generate_root_matrix( self, key, rootObjNum, embedDim ):
         
-        cumcosMatrix = jnp.hstack([
-            jnp.ones_like(cosMatrix[:, :1]),
-            cosMatrix.cumprod(axis=1),
-        ])
-        cumsinMatrix = jnp.hstack([
-            sinMatrix,
-            jnp.ones_like(sinMatrix[:, :1])
-        ])
+        rootEmbed = jax.random.normal(key, (rootObjNum, embedDim))
+        rootEmbed = rootEmbed / jnp.linalg.norm(rootEmbed, axis=1, keepdims=True)
         
-        return r * cumcosMatrix * cumsinMatrix
+        return rootEmbed
 
     def getEmbed( self, ids: list ):
 
