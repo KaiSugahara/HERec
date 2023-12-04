@@ -17,7 +17,12 @@ class bprTrainer(baseTrainer):
     def __calc_top_items(self, params, user_ids):
     
         # Predict Scores for All Items
-        Y = self.model.apply({"params": params}, user_ids, method=self.model.get_all_scores_by_user_ids)
+        Y, _ = self.model.apply(
+            {'params': params, **self.variables},
+            user_ids,
+            method=self.model.get_all_scores_by_user_ids,
+            mutable=list(self.variables.keys())
+        )
         
         # Top Rows
         pred_items = (-Y).argsort(axis=1)[:, :100]
@@ -73,10 +78,13 @@ class bprTrainer(baseTrainer):
     def loss_function(self, params, variables, X, Y):
 
         # Predict Scores for Positive Items
-        PRED_pos = self.model.apply({'params': params}, X[:, (0, 1)])
+        PRED_pos = self.model.apply( {'params': params, **variables}, X[:, (0, 1)], mutable=list(variables.keys()) )[0]
 
         # Predict Scores for Negative Items
-        PRED_neg = jnp.hstack([self.model.apply({'params': params}, X[:, (0, i)]) for i in range(2, X.shape[1])])
+        PRED_neg = jnp.hstack([
+            self.model.apply( {'params': params, **variables}, X[:, (0, i)], mutable=list(variables.keys()) )[0]
+            for i in range(2, X.shape[1])
+        ])
 
         # Calculate BPR cost for sampling pairs
         cost = - jnp.log(jax.nn.sigmoid(PRED_pos - PRED_neg))
