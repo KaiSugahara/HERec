@@ -12,9 +12,12 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument(
     '-m', "--model",
     choices=[
-        "MF", "HE_MF", "FM", "HE_FM",
-        "MF_BPR", "HE_MF_BPR", "MF_BCE", "HE_MF_BCE", "MF_SSM", "HE_MF_SSM",
-        "GRU4Rec", "HE_GRU4Rec",
+        "MF", "HE_MF", "HSE_MF",
+        "FM", "HE_FM", "HSE_FM",
+        "MF_BPR", "HE_MF_BPR", "HSE_MF_BPR",
+        "MF_BCE", "HE_MF_BCE", "HSE_MF_BCE",
+        "MF_SSM", "HE_MF_SSM", "HSE_MF_SSM",
+        "GRU4Rec", "HE_GRU4Rec", "HSE_GRU4Rec",
     ],
     help='name of the model to be trained and tested',
     required=True,
