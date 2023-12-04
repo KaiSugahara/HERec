@@ -5,5 +5,6 @@ from .getRepositoryPath import getRepositoryPath
 from .getTrainer import getTrainer
 from .hyParamSuggester import hyParamSuggester
 from .restoreModelParams import restoreModelParams
+from .restoreVariables import restoreVariables
 from .resultLoader import resultLoader
 from .topkWeightedMean import topkWeightedMean
