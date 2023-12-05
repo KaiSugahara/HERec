@@ -43,3 +43,7 @@ class HE_MF(nn.Module):
         V = self.itemEmbedder.getEmbedByLevel(level=0)
 
         return U @ V.T
+    
+    def regularization_terms(self):
+        
+        return 0

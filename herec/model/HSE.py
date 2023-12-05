@@ -65,3 +65,7 @@ class HSE(nn.Module):
 
         else:
             return nn.softmax(self.connectionMatrix[level+1]) @ self.getEmbedByLevel(level+1)
+
+    def regularization_terms(self):
+        
+        return 0

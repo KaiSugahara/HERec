@@ -57,3 +57,7 @@ class GRU4Rec(nn.Module):
         X = nn.softmax(X)
         
         return X
+    
+    def regularization_terms(self):
+        
+        return 0

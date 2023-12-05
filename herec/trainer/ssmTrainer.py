@@ -80,6 +80,9 @@ class ssmTrainer(baseTrainer):
 
         # Calculate SSM Loss
         loss = - jnp.mean(jnp.log(PRED[:, 0]))
+        
+        # regularization_terms
+        loss += self.model.apply({'params': params, **variables}, method=self.model.regularization_terms)
 
         return loss, variables
 

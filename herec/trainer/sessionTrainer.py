@@ -83,5 +83,8 @@ class sessionTrainer(baseTrainer):
         # 交差エントロピー誤差（省略版）
         target_preds = jax.vmap(lambda row, index: row[index], in_axes=0, out_axes=0)(pred, Y) # ターゲットidの予測値のみ取り出す（他は0で消えるので無視）
         loss = - jnp.mean(jnp.log(target_preds + 1e-8))
+        
+        # regularization_terms
+        loss += self.model.apply({'params': params, **variables}, method=self.model.regularization_terms)
 
         return loss, variables

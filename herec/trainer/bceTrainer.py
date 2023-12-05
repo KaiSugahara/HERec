@@ -99,6 +99,9 @@ class bceTrainer(baseTrainer):
         else:
             cost = cost.mean(axis=0)
             loss = cost.mean()
+            
+        # regularization_terms
+        loss += self.model.apply({'params': params, **variables}, method=self.model.regularization_terms)
 
         return loss, variables
 
