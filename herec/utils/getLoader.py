@@ -8,7 +8,6 @@ def getLoader(modelName: str, hyparams: dict):
 
         from ..loader import implicitLoader as targetLoader
         targetLoader.n_neg = hyparams["loader"].pop("n_neg")
-        targetLoader.has_weight = hyparams["loader"].pop("has_weight")
         targetLoader.sampler = hyparams["loader"].pop("sampler")
         
     elif modelName in ["GRU4Rec", "HE_GRU4Rec", "HSE_GRU4Rec"]:

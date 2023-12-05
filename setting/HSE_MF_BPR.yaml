@@ -64,10 +64,6 @@ loader:
     low: 1
     high: 20
     log: False
-  has_weight:
-    type: categorical
-    choices:
-      - False
   sampler:
     type: categorical
     choices:

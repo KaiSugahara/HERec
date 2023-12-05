@@ -5,7 +5,6 @@ import polars as pl
 class implicitLoader:
     
     n_neg: int
-    has_weight: bool
     sampler: str
 
     def __init__(self, key, df_DATA, batch_size):
@@ -29,7 +28,7 @@ class implicitLoader:
         item_num = df_X["item_id"].n_unique()
 
         # Extract Positive Items
-        df_X = df_X.group_by("user_id", maintain_order=True).agg("item_id", "pop_weight").with_columns( pl.col("item_id").list.unique().alias("pos_item_ids") ).explode("item_id", "pop_weight")
+        df_X = df_X.group_by("user_id", maintain_order=True).agg("item_id").with_columns( pl.col("item_id").list.unique().alias("pos_item_ids") ).explode("item_id")
 
         # Negative Sampling
         for i in range(self.n_neg):
@@ -64,11 +63,9 @@ class implicitLoader:
 
         # Convert to Matrix
         self.X = jax.device_put(df_X.select("user_id", "item_id", "^neg_item_id_\d+$").to_numpy())
-        self.Y = jax.device_put(df_X.select("pop_weight").to_numpy()) if self.has_weight else None
         
         # Shuffle rows of X
         self.X = self.X[self.shuffled_indices]
-        self.Y = self.Y[self.shuffled_indices] if self.has_weight else None
 
     def __iter__(self):
         
@@ -90,9 +87,8 @@ class implicitLoader:
             start_index = self.batch_size * self.batch_idx
             end_index = self.batch_size * (self.batch_idx + 1)
             X = self.X[start_index:end_index]
-            Y = self.Y[start_index:end_index] if self.has_weight else None
             
             # Update batch-index
             self.batch_idx += 1
             
-            return X, Y
+            return X, None

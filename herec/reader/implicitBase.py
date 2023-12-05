@@ -54,11 +54,6 @@ class implicitBase():
         ).explode("item_id").with_columns(
             pl.col("pos_item_ids").list.unique()
         )
-        
-        # Add Popularity Weight for items in TRAIN subset
-        df_TRAIN = df_TRAIN.with_columns(
-            (1 / pl.col("item_id").map_dict( dict(zip(*df_TRAIN.get_column("item_id").value_counts())) )).alias("pop_weight")
-        )
 
         # Add Positive Item IDs for Each User in VALID subset
         df_EVALUATION = df_EVALUATION.group_by("user_id", maintain_order=True).agg(
