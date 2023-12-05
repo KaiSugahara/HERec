@@ -4,7 +4,7 @@ def getTrainer(modelName: str):
 
         from herec.trainer import ratingTrainer as targetTrainer
 
-    elif modelName in ["MF_BPR", "HE_MF_BPR", "HSE_MF_BPR"]:
+    elif modelName in ["MF_BPR", "HE_MF_BPR", "HE_MF_USER_BPR", "HE_MF_ITEM_BPR", "HSE_MF_BPR"]:
 
         from herec.trainer import bprTrainer as targetTrainer
         

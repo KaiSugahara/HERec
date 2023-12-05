@@ -4,7 +4,7 @@ def getLoader(modelName: str, hyparams: dict):
 
         from ..loader import ratingLoader as targetLoader
 
-    elif modelName in ["MF_BPR", "HE_MF_BPR", "HSE_MF_BPR", "MF_BCE", "HE_MF_BCE", "HSE_MF_BCE", "MF_SSM", "HE_MF_SSM", "HSE_MF_SSM"]:
+    elif modelName in ["MF_BPR", "HE_MF_BPR", "HE_MF_USER_BPR", "HE_MF_ITEM_BPR", "HSE_MF_BPR", "MF_BCE", "HE_MF_BCE", "HSE_MF_BCE", "MF_SSM", "HE_MF_SSM", "HSE_MF_SSM"]:
 
         from ..loader import implicitLoader as targetLoader
         targetLoader.n_neg = hyparams["loader"].pop("n_neg")

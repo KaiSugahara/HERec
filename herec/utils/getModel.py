@@ -21,6 +21,24 @@ def getModel(modelName: str, hyparams: dict, DATA: dict):
             **hyparams["model"],
         )
         
+    if modelName in ["HE_MF_USER_BPR"]:
+
+        return HE_MF_USER(
+            user_num=DATA["user_num"],
+            item_num=DATA["item_num"],
+            userClusterNums=[num := hyparams["model"].pop("userClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparams["model"].pop("userHierarchyDepth"))],
+            **hyparams["model"],
+        )
+        
+    if modelName in ["HE_MF_ITEM_BPR"]:
+
+        return HE_MF_ITEM(
+            user_num=DATA["user_num"],
+            item_num=DATA["item_num"],
+            itemClusterNums=[num := hyparams["model"].pop("itemClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparams["model"].pop("itemHierarchyDepth"))],
+            **hyparams["model"],
+        )
+        
     if modelName in ["HSE_MF", "HSE_MF_BPR", "HSE_MF_BCE", "HSE_MF_SSM"]:
 
         return HSE_MF(
