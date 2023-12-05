@@ -8,6 +8,8 @@ class HSE(nn.Module):
     objNum: int
     clusterNums: Sequence[int]
     embedDim: int
+    lam_exc: float
+    lam_inc: float
 
     def setup( self ):
 
@@ -68,4 +70,13 @@ class HSE(nn.Module):
 
     def regularization_terms(self):
         
-        return 0
+        loss = 0
+        
+        for P in self.connectionMatrix[1:]:
+            P = nn.softmax(P)
+            # exclusiveness
+            loss -= self.lam_exc * jnp.mean(P * jnp.log2(P))
+            # inclusiveness
+            loss += self.lam_inc * jnp.mean(P.mean(axis=0) * jnp.log2(P.mean(axis=0)))
+        
+        return loss
