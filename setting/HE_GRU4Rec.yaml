@@ -35,15 +35,10 @@ model:
     low: 10
     high: 1000
     log: False
-  lam_exc:
+  temperature:
     type: float
-    low: 1e-3
-    high: 1e+3
-    log: True
-  lam_inc:
-    type: float
-    low: 1e-3
-    high: 1e+3
+    low: 1e-1
+    high: 1e+0
     log: True
 
 # TRAINER

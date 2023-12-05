@@ -10,8 +10,7 @@ class HE_MF_ITEM(nn.Module):
     item_num: int
     itemClusterNums: list
     embedDim: int
-    lam_exc: float
-    lam_inc: float
+    temperature: float
     
     def setup(self):
 
@@ -21,8 +20,7 @@ class HE_MF_ITEM(nn.Module):
             objNum = self.item_num,
             clusterNums = self.itemClusterNums,
             embedDim = self.embedDim,
-            lam_exc = self.lam_exc,
-            lam_inc = self.lam_inc,
+            temperature = self.temperature,
         )
     
     @nn.compact

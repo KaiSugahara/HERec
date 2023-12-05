@@ -11,8 +11,7 @@ class HSE_MF(nn.Module):
     userClusterNums: list
     itemClusterNums: list
     embedDim: int
-    lam_exc: float
-    lam_inc: float
+    temperature: float
     
     def setup(self):
 
@@ -20,16 +19,14 @@ class HSE_MF(nn.Module):
             objNum = self.user_num,
             clusterNums = self.userClusterNums,
             embedDim = self.embedDim,
-            lam_exc = self.lam_exc,
-            lam_inc = self.lam_inc,
+            temperature = self.temperature,
         )
 
         self.itemEmbedder = HSE(
             objNum = self.item_num,
             clusterNums = self.itemClusterNums,
             embedDim = self.embedDim,
-            lam_exc = self.lam_exc,
-            lam_inc = self.lam_inc,
+            temperature = self.temperature,
         )
     
     @nn.compact

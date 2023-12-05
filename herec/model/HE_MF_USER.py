@@ -10,8 +10,7 @@ class HE_MF_USER(nn.Module):
     item_num: int
     userClusterNums: list
     embedDim: int
-    lam_exc: float
-    lam_inc: float
+    temperature: float
     
     def setup(self):
 
@@ -19,8 +18,7 @@ class HE_MF_USER(nn.Module):
             objNum = self.user_num,
             clusterNums = self.userClusterNums,
             embedDim = self.embedDim,
-            lam_exc = self.lam_exc,
-            lam_inc = self.lam_inc,
+            temperature = self.temperature,
         )
 
         self.itemEmbedder = nn.Embed(num_embeddings=self.item_num, features=self.embedDim)

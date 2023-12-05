@@ -8,8 +8,7 @@ class HSE(nn.Module):
     objNum: int
     clusterNums: Sequence[int]
     embedDim: int
-    lam_exc: float
-    lam_inc: float
+    temperature: float
 
     def setup( self ):
 
@@ -47,7 +46,7 @@ class HSE(nn.Module):
                     Embedding matrix with rows corresponding to target object embeddings
         """
 
-        return nn.softmax(self.connectionMatrix[1][ids]) @ self.getEmbedByLevel(1)
+        return nn.softmax(self.connectionMatrix[1][ids] / self.temperature) @ self.getEmbedByLevel(1)
 
     def getEmbedByLevel( self, level: int ):
 
@@ -66,17 +65,17 @@ class HSE(nn.Module):
             return self.rootMatrix
 
         else:
-            return nn.softmax(self.connectionMatrix[level+1]) @ self.getEmbedByLevel(level+1)
+            return nn.softmax(self.connectionMatrix[level+1] / self.temperature) @ self.getEmbedByLevel(level+1)
 
     def regularization_terms(self):
         
         loss = 0
         
-        for P in self.connectionMatrix[1:]:
-            P = nn.softmax(P)
-            # exclusiveness
-            loss -= self.lam_exc * jnp.mean(P * jnp.log2(P))
-            # inclusiveness
-            loss += self.lam_inc * jnp.mean(P.mean(axis=0) * jnp.log2(P.mean(axis=0)))
+        # for P in self.connectionMatrix[1:]:
+        #     P = nn.softmax(P)
+        #     # exclusiveness
+        #     loss -= self.lam_exc * jnp.mean(P * jnp.log2(P))
+        #     # inclusiveness
+        #     loss += self.lam_inc * jnp.mean(P.mean(axis=0) * jnp.log2(P.mean(axis=0)))
         
         return loss
