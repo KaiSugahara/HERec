@@ -51,7 +51,7 @@ class train:
 
         load_dotenv(".env")
 
-        EXPERIMENT_NAME = f"HeRec-TRAIN-{self.datasetName}-{self.modelName}"
+        EXPERIMENT_NAME = f"{self.datasetName}-{self.modelName}-TRAIN"
         if (experiment := mlflow.get_experiment_by_name(EXPERIMENT_NAME)) is None:
             self.experiment_id = mlflow.create_experiment(name=EXPERIMENT_NAME)
         else:

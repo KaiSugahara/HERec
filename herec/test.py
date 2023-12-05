@@ -37,7 +37,7 @@ class test:
 
         load_dotenv(".env")
 
-        EXPERIMENT_NAME = f"HeRec-TEST-{self.datasetName}-{self.modelName}"
+        EXPERIMENT_NAME = f"{self.datasetName}-{self.modelName}-TEST"
         if (experiment := mlflow.get_experiment_by_name(EXPERIMENT_NAME)) is None:
             self.experiment_id = mlflow.create_experiment(name=EXPERIMENT_NAME)
         else:
@@ -51,7 +51,7 @@ class test:
     def dowmload_best_setting(self):
 
         # Get Validation Results
-        result_df = resultLoader( f"HeRec-TRAIN-{self.datasetName}-{self.modelName}" ).get_results_by_fold( self.seed )
+        result_df = resultLoader( f"{self.datasetName}-{self.modelName}-TRAIN" ).get_results_by_fold( self.seed )
         
         # Check
         if result_df.height != 50:
