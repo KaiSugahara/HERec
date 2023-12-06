@@ -64,8 +64,3 @@ loader:
     low: 1
     high: 20
     log: False
-  sampler:
-    type: categorical
-    choices:
-      - "random"
-      - "pop"

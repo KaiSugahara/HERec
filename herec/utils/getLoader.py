@@ -20,7 +20,6 @@ def getLoader(modelName: str, hyparams: dict):
 
         from ..loader import implicitLoader as targetLoader
         targetLoader.n_neg = hyparams["loader"].pop("n_neg")
-        targetLoader.sampler = hyparams["loader"].pop("sampler")
 
     # Sequential RS
     elif modelName in [
