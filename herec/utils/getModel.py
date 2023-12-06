@@ -77,6 +77,14 @@ def getModel(modelName: str, hyparams: dict, DATA: dict):
             **hyparams["model"]
         )
         
+    if modelName in ["NeuMF", "NeuMF_BPR", "NeuMF_BCE", "NeuMF_SSM"]:
+            
+        return NeuMF(
+            user_num=DATA["user_num"],
+            item_num=DATA["item_num"],
+            **hyparams["model"]
+        )
+        
     if modelName == "GRU4Rec":
 
         return GRU4Rec(

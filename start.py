@@ -12,11 +12,19 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument(
     '-m', "--model",
     choices=[
+        # Explicit RS
         "MF", "HE_MF", "HSE_MF",
         "FM", "HE_FM", "HSE_FM",
-        "MF_BPR", "HE_MF_BPR", "HE_MF_USER_BPR", "HE_MF_ITEM_BPR", "HSE_MF_BPR",
+        "NeuMF", "HE_NeuMF", "HSE_NeuMF",
+        # Implicit RS (BPR)
+        "MF_BPR", "HE_MF_BPR", "HSE_MF_BPR",
+        "HE_MF_USER_BPR",
+        "HE_MF_ITEM_BPR",
+        # Implicit RS (BCE)
         "MF_BCE", "HE_MF_BCE", "HSE_MF_BCE",
+        # Implicit RS (SSM)
         "MF_SSM", "HE_MF_SSM", "HSE_MF_SSM",
+        # Sequential RS
         "GRU4Rec", "HE_GRU4Rec", "HSE_GRU4Rec",
     ],
     help='name of the model to be trained and tested',
@@ -25,8 +33,11 @@ parser.add_argument(
 parser.add_argument(
     '-d', "--dataset",
     choices=[
+        # Explicit RS
         "ML100K", "ML1M", "ML10M", "ML25M", "Ciao", "Ciao_PART",
+        # Implicit RS (BPR)
         "ML100K_IMPLICIT", "ML1M_IMPLICIT", "Twitch100K", "DIGINETICA",
+        # Sequential RS
         "AMAZON_M2", "G1NEWS_SESSION",
     ],
     help='a dataset to be trained and tested',
