@@ -30,3 +30,8 @@ model:
     low: 1e-1
     high: 1e+0
     log: True
+  layerNum:
+    type: int
+    low: 1
+    high: 5
+    log: False

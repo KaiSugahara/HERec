@@ -9,6 +9,7 @@ class DHE(nn.Module):
     clusterNums: Sequence[int]
     embedDim: int
     temperature: float
+    layerNum: int
 
     def setup( self ):
 
@@ -26,7 +27,7 @@ class DHE(nn.Module):
             self.connectionMatrix += (self.param(f'connectionMatrix_{level}', lambda rng: jax.random.normal(rng, (row_num, col_num), jnp.float32)),)
             
         # Denses for Connection Matrices
-        self.Denses = [None] + [[nn.Dense(features=self.clusterNums[level-1]) for n in range(5)] for level in range(1, self.depth+1)]
+        self.Denses = [None] + [[nn.Dense(features=self.clusterNums[level-1]) for _ in range(self.layerNum)] for level in range(1, self.depth+1)]
             
     def __getConnectionMatrix( self, level, ids=None ):
         

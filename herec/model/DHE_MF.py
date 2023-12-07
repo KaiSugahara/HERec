@@ -12,6 +12,7 @@ class DHE_MF(nn.Module):
     itemClusterNums: list
     embedDim: int
     temperature: float
+    layerNum: int
     
     def setup(self):
 
@@ -20,6 +21,7 @@ class DHE_MF(nn.Module):
             clusterNums = self.userClusterNums,
             embedDim = self.embedDim,
             temperature = self.temperature,
+            layerNum = self.layerNum,
         )
 
         self.itemEmbedder = DHE(
@@ -27,6 +29,7 @@ class DHE_MF(nn.Module):
             clusterNums = self.itemClusterNums,
             embedDim = self.embedDim,
             temperature = self.temperature,
+            layerNum = self.layerNum,
         )
     
     @nn.compact
