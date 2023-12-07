@@ -14,6 +14,7 @@ def getLoader(modelName: str, hyparams: dict):
         "MF_BPR", "HE_MF_BPR", "HSE_MF_BPR", "DHE_MF_BPR",
         "HE_MF_USER_BPR",
         "HE_MF_ITEM_BPR",
+        "NeuMF_BPR", "HE_NeuMF_BPR", "HSE_NeuMF_BPR", "DHE_NeuMF_BPR",
         "MF_BCE", "HE_MF_BCE", "HSE_MF_BCE", "DHE_MF_BCE",
         "MF_SSM", "HE_MF_SSM", "HSE_MF_SSM", "DHE_MF_SSM",
     ]:
