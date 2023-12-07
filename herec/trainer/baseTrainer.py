@@ -81,15 +81,20 @@ class baseTrainer:
         if "VALID_LOSS" not in self.loss_history[epoch_i].keys():
             return False
         
-        # ベスト検証ロスを更新できない場合はカウント & 終了判定
+        # ベスト検証ロスを更新できない場合はカウント
         if getattr(self, "_es_best_loss", self.loss_history[0]["VALID_LOSS"]) <= self.loss_history[epoch_i]["VALID_LOSS"]:
             self._es_counter = getattr(self, "_es_counter", 0) + 1
-            if self._es_counter == self.es_patience:
-                return True
+        # 検証ロスが発散している場合はカウント
+        elif jnp.isnan( self.loss_history[epoch_i]["VALID_LOSS"] ):
+            self._es_counter = getattr(self, "_es_counter", 0) + 1
         # ベスト検証ロスを更新する場合
         else:
             self._es_counter = 0
             self._es_best_loss = self.loss_history[epoch_i]["VALID_LOSS"]
+            
+        # 終了判定
+        if self._es_counter == self.es_patience:
+            return True
             
         return False
 
