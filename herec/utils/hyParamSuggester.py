@@ -2,9 +2,13 @@ import yaml
 
 class hyParamSuggester():
 
-    def __init__(self, yaml_path):
-        with open(yaml_path, "r") as f:
-            self.rawSetting = yaml.safe_load(f.read())
+    def __init__(self, yaml_paths):
+
+        # READ
+        self.rawSetting = {}
+        for path in yaml_paths:
+            with open(path, "r") as f:
+                self.rawSetting |= yaml.safe_load(f.read())
 
     def set_suggest_method(self, name, conf, trial):
         if conf["type"] == "categorical":

@@ -25,29 +25,18 @@ model:
     low: 10
     high: 1000
     log: True
-
-# TRAINER
-trainer:
-  epochNum:
-    type: categorical
-    choices:
-      - 1024
-  batch_size:
+  itemHierarchyDepth:
     type: int
-    low: 100
+    low: 1
+    high: 3
+    log: False
+  itemClusterNum:
+    type: int
+    low: 10
     high: 1000
-    log: True
-  learning_rate:
+    log: False
+  temperature:
     type: float
-    low: 1e-4
-    high: 1e-1
+    low: 1e-1
+    high: 1e+0
     log: True
-  weight_decay:
-    type: float
-    low: 1e-5
-    high: 1e+1
-    log: True
-  es_patience:
-    type: categorical
-    choices:
-      - 5

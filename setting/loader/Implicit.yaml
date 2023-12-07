@@ -1,0 +1,7 @@
+# LOADER
+loader:
+  n_neg:
+    type: int
+    low: 1
+    high: 20
+    log: False

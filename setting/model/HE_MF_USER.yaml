@@ -1,0 +1,22 @@
+# MODEL
+model:
+  embedDim:
+    type: int
+    low: 10
+    high: 1000
+    log: True
+  userHierarchyDepth:
+    type: int
+    low: 1
+    high: 3
+    log: False
+  userClusterNum:
+    type: int
+    low: 10
+    high: 1000
+    log: False
+  temperature:
+    type: float
+    low: 1e-1
+    high: 1e+0
+    log: True

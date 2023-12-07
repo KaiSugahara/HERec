@@ -48,6 +48,7 @@ parser.add_argument(
     "--config",
     help='path of config file (yaml file)',
     required=True,
+    nargs="+",
 )
 parser.add_argument(
     "--seed",

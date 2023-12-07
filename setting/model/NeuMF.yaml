@@ -1,0 +1,7 @@
+# MODEL
+model:
+  embedDim:
+    type: int
+    low: 10
+    high: 1000
+    log: True
