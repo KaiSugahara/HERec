@@ -19,6 +19,8 @@ def getDataset(datasetName: str, seed: int, evalStage: str):
         reader = Ciao()
     elif datasetName == "Ciao_PART":
         reader = Ciao_PART()
+    elif datasetName == "Yelp":
+        reader = Yelp()
     elif datasetName == "Twitch100K":
         reader = Twitch100K()
     elif datasetName == "DIGINETICA":

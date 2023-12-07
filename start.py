@@ -35,7 +35,7 @@ parser.add_argument(
     '-d', "--dataset",
     choices=[
         # Explicit RS
-        "ML100K", "ML1M", "ML10M", "ML25M", "Ciao", "Ciao_PART",
+        "ML100K", "ML1M", "ML10M", "ML25M", "Ciao", "Ciao_PART", "Yelp",
         # Implicit RS (BPR)
         "ML100K_IMPLICIT", "ML1M_IMPLICIT", "Twitch100K", "DIGINETICA",
         # Sequential RS

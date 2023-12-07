@@ -135,6 +135,14 @@ function G1_NEWS () {
     fi
 }
 
+function Yelp () {
+    if [ ! -e "Yelp/yelp_training_set" ]; then
+        mkdir -p Yelp
+        echo "Please download yelp_training_set.zip to `pwd`/Yelp and unzip it."
+        echo "The zip file is available at https://www.kaggle.com/competitions/yelp-recsys-2013/data"
+    fi
+}
+
 if [ $1 = "INIT" ]; then
     ls | grep -v -E 'download.sh' | xargs rm -r
 elif [ $1 = "ML100K" ]; then
@@ -171,15 +179,8 @@ elif [ $1 = "YOOCHOOSE" ]; then
     YOOCHOOSE
 elif [ $1 = "G1_NEWS" ]; then
     G1_NEWS
-# elif [ $1 = "ALL" ]; then
-#     ML100K
-#     ML1M
-#     ML10M
-#     ML25M
-#     # BookCrossing
-#     # Amazon
-#     DIGINETICA
-#     AMAZON_M2
+elif [ $1 = "Yelp" ]; then
+    Yelp
 else
     echo "Invalid Argument"
 fi

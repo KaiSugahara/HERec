@@ -13,3 +13,4 @@ from .Twitch100K import Twitch100K
 from .LFM2B_1MON import LFM2B_1MON
 from .LastFM_TAG import LastFM_TAG
 from .G1NEWS_SESSION import G1NEWS_SESSION
+from .Yelp import Yelp
