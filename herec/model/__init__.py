@@ -1,3 +1,4 @@
+from .DHE_MF import DHE_MF
 from .FM import FM
 from .GRU4Rec import GRU4Rec
 from .HE_FM import HE_FM

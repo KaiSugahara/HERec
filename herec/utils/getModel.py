@@ -48,6 +48,16 @@ def getModel(modelName: str, hyparams: dict, DATA: dict):
             itemClusterNums=[num := hyparams["model"].pop("itemClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparams["model"].pop("itemHierarchyDepth"))],
             **hyparams["model"],
         )
+        
+    if modelName in ["DHE_MF", "DHE_MF_BPR", "DHE_MF_BCE", "DHE_MF_SSM"]:
+
+        return DHE_MF(
+            user_num=DATA["user_num"],
+            item_num=DATA["item_num"],
+            userClusterNums=[num := hyparams["model"].pop("userClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparams["model"].pop("userHierarchyDepth"))],
+            itemClusterNums=[num := hyparams["model"].pop("itemClusterNum")] + [max(math.ceil(num / (2**l)), 1) for l in range(1, hyparams["model"].pop("itemHierarchyDepth"))],
+            **hyparams["model"],
+        )
     
     if modelName == "FM":
 
