@@ -105,6 +105,14 @@ def getModel(modelName: str, hyparams: dict, DATA: dict):
             **hyparams["model"],
         )
         
+    if modelName in ["ProtoMF_BPR"]:
+
+        return ProtoMF(
+            user_num=DATA["user_num"],
+            item_num=DATA["item_num"],
+            **hyparams["model"],
+        )
+        
     if modelName == "GRU4Rec":
 
         return GRU4Rec(

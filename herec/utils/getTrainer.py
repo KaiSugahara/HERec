@@ -15,6 +15,7 @@ def getTrainer(modelName: str):
         "HE_MF_USER_BPR",
         "HE_MF_ITEM_BPR",
         "NeuMF_BPR", "HE_NeuMF_BPR", "HSE_NeuMF_BPR", "DHE_NeuMF_BPR",
+        "ProtoMF_BPR",
     ]:
 
         from herec.trainer import bprTrainer as targetTrainer

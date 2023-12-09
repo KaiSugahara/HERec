@@ -21,6 +21,7 @@ parser.add_argument(
         "HE_MF_USER_BPR",
         "HE_MF_ITEM_BPR",
         "NeuMF_BPR", "HE_NeuMF_BPR", "HSE_NeuMF_BPR", "DHE_NeuMF_BPR",
+        "ProtoMF_BPR",
         # Implicit RS (BCE)
         "MF_BCE", "HE_MF_BCE", "HSE_MF_BCE", "DHE_MF_BCE",
         # Implicit RS (SSM)

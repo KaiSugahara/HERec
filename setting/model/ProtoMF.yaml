@@ -1,0 +1,37 @@
+# MODEL
+model:
+  embedDim:
+    type: int
+    low: 10
+    high: 1000
+    log: True
+  user_proto_num:
+    type: int
+    low: 10
+    high: 100
+    log: False
+  item_proto_num:
+    type: int
+    low: 10
+    high: 100
+    log: False
+  lam1:
+    type: float
+    low: 1e-3
+    high: 1e+1
+    log: True
+  lam2:
+    type: float
+    low: 1e-3
+    high: 1e+1
+    log: True
+  lam3:
+    type: float
+    low: 1e-3
+    high: 1e+1
+    log: True
+  lam4:
+    type: float
+    low: 1e-3
+    high: 1e+1
+    log: True

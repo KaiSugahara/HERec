@@ -10,3 +10,4 @@ from .HE_NeuMF import HE_NeuMF
 from .MF import MF
 from .NeuMF import NeuMF
 from .HSE_MF import HSE_MF
+from .ProtoMF import ProtoMF
