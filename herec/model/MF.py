@@ -30,7 +30,3 @@ class MF(nn.Module):
         V = self.itemEmbedder.embedding
 
         return U @ V.T
-    
-    def regularization_terms(self):
-        
-        return 0

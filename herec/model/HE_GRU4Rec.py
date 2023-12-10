@@ -63,7 +63,3 @@ class HE_GRU4Rec(nn.Module):
         X = nn.softmax(X)
         
         return X
-    
-    def regularization_terms(self):
-        
-        return 0 + self.userEmbedder.regularization_terms() + self.itemEmbedder.regularization_terms()

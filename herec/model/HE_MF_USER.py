@@ -40,7 +40,3 @@ class HE_MF_USER(nn.Module):
         V = self.itemEmbedder.embedding
 
         return U @ V.T
-    
-    def regularization_terms(self):
-        
-        return 0 + self.userEmbedder.regularization_terms()

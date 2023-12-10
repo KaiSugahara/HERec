@@ -85,6 +85,7 @@ class sessionTrainer(baseTrainer):
         loss = - jnp.mean(jnp.log(target_preds + 1e-8))
         
         # regularization_terms
-        loss += self.model.apply({'params': params, **variables}, method=self.model.regularization_terms)
+        if hasattr( self.model, "regularization_terms" ):
+            loss += self.model.apply({'params': params, **variables}, method=self.model.regularization_terms)
 
         return loss, variables

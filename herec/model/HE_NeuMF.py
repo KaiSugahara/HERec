@@ -96,7 +96,3 @@ class HE_NeuMF(nn.Module):
         itemMlpEmbed = self.itemMlpEmbedder.getEmbedByLevel(level=0)
 
         return jax.vmap(self.__get_all_scores_by_user_id, in_axes=(0, None, None), out_axes=0)(user_ids, itemGmfEmbed, itemMlpEmbed)
-    
-    def regularization_terms(self):
-        
-        return 0

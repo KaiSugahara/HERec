@@ -66,16 +66,3 @@ class HSE(nn.Module):
 
         else:
             return nn.softmax(self.connectionMatrix[level+1] / self.temperature) @ self.getEmbedByLevel(level+1)
-
-    def regularization_terms(self):
-        
-        loss = 0
-        
-        # for P in self.connectionMatrix[1:]:
-        #     P = nn.softmax(P)
-        #     # exclusiveness
-        #     loss -= self.lam_exc * jnp.mean(P * jnp.log2(P))
-        #     # inclusiveness
-        #     loss += self.lam_inc * jnp.mean(P.mean(axis=0) * jnp.log2(P.mean(axis=0)))
-        
-        return loss

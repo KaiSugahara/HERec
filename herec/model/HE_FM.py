@@ -49,7 +49,3 @@ class HE_FM(nn.Module):
         interactionTerm = jnp.sum( self.userEmbedder.getEmbed(user_ids) * self.itemEmbedder.getEmbed(item_ids), axis=1, keepdims=True )
         
         return w0 + userLinearTerm + itemLinearTerm + interactionTerm
-    
-    def regularization_terms(self):
-        
-        return 0 + self.userEmbedder.regularization_terms() + self.itemEmbedder.regularization_terms()

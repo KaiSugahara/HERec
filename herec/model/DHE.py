@@ -71,9 +71,3 @@ class DHE(nn.Module):
 
         else:
             return self.__getConnectionMatrix(level+1) @ self.getEmbedByLevel(level+1)
-
-    def regularization_terms(self):
-        
-        loss = 0
-        
-        return loss

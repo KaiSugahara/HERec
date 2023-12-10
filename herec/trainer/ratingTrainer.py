@@ -34,6 +34,7 @@ class ratingTrainer(baseTrainer):
         loss = jnp.mean((pred - Y)**2)
         
         # regularization_terms
-        loss += self.model.apply({'params': params, **variables}, method=self.model.regularization_terms)
+        if hasattr( self.model, "regularization_terms" ):
+            loss += self.model.apply({'params': params, **variables}, method=self.model.regularization_terms)
 
         return loss, variables

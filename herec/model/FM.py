@@ -32,7 +32,3 @@ class FM(nn.Module):
         interactionTerm = jnp.sum( self.userEmbedder(user_ids) * self.itemEmbedder(item_ids), axis=1, keepdims=True )
         
         return w0 + userLinearTerm + itemLinearTerm + interactionTerm
-    
-    def regularization_terms(self):
-        
-        return 0
