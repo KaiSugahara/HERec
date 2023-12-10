@@ -97,12 +97,12 @@ class ProtoMF(nn.Module):
 
         return T_new
     
-    def regularization_terms(self):
+    def regularization_terms(self, user_ids, item_ids):
         
         loss = 0
         
-        U_new = self.get_user_new_embeddings(jnp.arange(0, self.user_num))
-        T_new = self.get_item_new_embeddings(jnp.arange(0, self.item_num))
+        U_new = self.get_user_new_embeddings(user_ids)
+        T_new = self.get_item_new_embeddings(item_ids)
         
         loss -= self.lam1 * U_new.max(axis=0).mean()
         loss -= self.lam2 * U_new.max(axis=1).mean()

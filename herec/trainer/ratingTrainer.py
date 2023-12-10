@@ -35,6 +35,8 @@ class ratingTrainer(baseTrainer):
         
         # regularization_terms
         if hasattr( self.model, "regularization_terms" ):
-            loss += self.model.apply({'params': params, **variables}, method=self.model.regularization_terms)
+            sample_user_ids = X[:, 0]
+            sample_item_ids = X[:, 1]
+            loss += self.model.apply({'params': params, **variables}, sample_user_ids, sample_item_ids, method=self.model.regularization_terms)
 
         return loss, variables
