@@ -8,6 +8,7 @@ class HSE(nn.Module):
     objNum: int
     clusterNums: Sequence[int]
     embedDim: int
+    temperature: float
 
     def setup( self ):
 
@@ -15,7 +16,8 @@ class HSE(nn.Module):
         self.depth = len(self.clusterNums)
 
         # Root-node Embeddings
-        self.rootMatrix = self.param(f'rootMatrix', lambda rng: jax.random.normal(rng, (self.clusterNums[-1], self.embedDim), jnp.float32))
+        radius = self.param(f'radius', lambda rng: jnp.ones(1))
+        self.rootMatrix = radius * self.variable('rootMatrix', 'embedding', lambda: self.generate_root_matrix(jax.random.PRNGKey(0), self.clusterNums[-1], self.embedDim)).value
 
         # Connection Matrices
         self.connectionMatrix = (None,)
@@ -23,16 +25,13 @@ class HSE(nn.Module):
             row_num = self.clusterNums[level-2] if level > 1 else self.objNum
             col_num = self.clusterNums[level-1]
             self.connectionMatrix += (self.param(f'connectionMatrix_{level}', lambda rng: jax.random.normal(rng, (row_num, col_num), jnp.float32)),)
-    
-    def sparsemax( self, x ):
-
-        idxs = (jnp.arange(x.shape[1]) + 1).reshape(1, -1)
-        sorted_x = jnp.flip(jax.lax.sort(x, dimension=1), axis=1)
-        cum = jnp.cumsum(sorted_x, axis=1)
-        k = jnp.sum(jnp.where(1 + sorted_x * idxs > cum, 1, 0), axis=1, keepdims=True)
-        threshold = (jnp.take_along_axis(cum, k - 1, axis=1) - 1) / k
+            
+    def generate_root_matrix( self, key, rootObjNum, embedDim ):
         
-        return jnp.maximum(x - threshold, 0)
+        rootEmbed = jax.random.normal(key, (rootObjNum, embedDim))
+        rootEmbed = rootEmbed / jnp.linalg.norm(rootEmbed, axis=1, keepdims=True)
+        
+        return rootEmbed
 
     def getEmbed( self, ids: list ):
 
@@ -47,7 +46,7 @@ class HSE(nn.Module):
                     Embedding matrix with rows corresponding to target object embeddings
         """
 
-        return self.sparsemax(self.connectionMatrix[1][ids]) @ self.getEmbedByLevel(1)
+        return nn.softmax(self.connectionMatrix[1][ids] / self.temperature) @ self.getEmbedByLevel(1)
 
     def getEmbedByLevel( self, level: int ):
 
@@ -66,4 +65,4 @@ class HSE(nn.Module):
             return self.rootMatrix
 
         else:
-            return self.sparsemax(self.connectionMatrix[level+1]) @ self.getEmbedByLevel(level+1)
+            return nn.softmax(self.connectionMatrix[level+1] / self.temperature) @ self.getEmbedByLevel(level+1)
