@@ -11,6 +11,8 @@ def restoreModelParams(run_id, epoch_id = None):
 
     if epoch_id is None:
         return checkpoints.restore_checkpoint(ckpt_dir=f'checkpoint/{run_id}/{min(saved_epochs)}/default/checkpoint', target=None)
+    elif epoch_id == -1:
+        return checkpoints.restore_checkpoint(ckpt_dir=f'checkpoint/{run_id}/{max(saved_epochs)}/default/checkpoint', target=None)
     else:
         if epoch_id not in saved_epochs: raise Exception(f"epoch {epoch_id} is not saved")
         return checkpoints.restore_checkpoint(ckpt_dir=f'checkpoint/{run_id}/{epoch_id}/default/checkpoint', target=None)
