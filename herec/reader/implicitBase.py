@@ -59,11 +59,24 @@ class implicitBase():
         df_EVALUATION = df_EVALUATION.group_by("user_id", maintain_order=True).agg(
             pl.col("item_id").alias("pos_item_ids"),
         )
+        
+        # Add Past Interacted Items to VALID subset
+        df_EVALUATION = df_EVALUATION.join(
+            df_TRAIN.select("user_id", pl.col("pos_item_ids").alias("past_item_ids")).unique("user_id"),
+            how="left",
+            on="user_id",
+        )
 
         # Fill -1 to pos_item_ids such that it has the same length in VALID subset
         max_len = df_EVALUATION.get_column("pos_item_ids").list.lengths().max()
         df_EVALUATION = df_EVALUATION.with_columns(
             pl.col("pos_item_ids").list.concat([-1]*max_len).list.head(max_len)
+        )
+        
+        # Fill -1 to past_item_ids such that it has the same length in VALID subset
+        max_len = df_EVALUATION.get_column("past_item_ids").list.lengths().max()
+        df_EVALUATION = df_EVALUATION.with_columns(
+            pl.col("past_item_ids").list.concat([pl.col("past_item_ids").list.last()]*max_len).list.head(max_len)
         )
 
         # Convert TEST subset for Evaluation
@@ -71,9 +84,11 @@ class implicitBase():
             # User IDs
             user_ids = jax.device_put(df_EVALUATION.get_column("user_id").to_numpy()),
             # True Item IDs
-            true_items = jnp.array(df_EVALUATION.get_column("pos_item_ids").to_list()),
+            true_item_ids = jnp.array(df_EVALUATION.get_column("pos_item_ids").to_list()),
             # Length of True Items by User
             true_item_len = np.array(df_EVALUATION.get_column("pos_item_ids").list.set_difference(-1).list.lengths().to_list()),
+            # Past Item IDs
+            past_item_ids = jnp.array(df_EVALUATION.get_column("past_item_ids").to_list()),
         )
 
         return {
