@@ -7,6 +7,7 @@ from .ML10M import ML10M
 from .ML25M import ML25M
 from .ML100K import ML100K
 from .ML100K_IMPLICIT import ML100K_IMPLICIT
+from .Pinterest import Pinterest
 from .Ciao import Ciao
 from .Ciao_PART import Ciao_PART
 from .Twitch100K import Twitch100K

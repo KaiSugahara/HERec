@@ -143,6 +143,14 @@ function Yelp () {
     fi
 }
 
+function Pinterest () {
+    if [ ! -e "Pinterest/pinterest_iccv" ]; then
+        mkdir -p Pinterest
+        echo "Please download pinterest_iccv.zip to `pwd`/Pinterest and unzip it."
+        echo "The zip file is available at https://drive.google.com/uc?export=download&id=0B0l8Lmmrs5A_REZXanM3dTN4Y28"
+    fi
+}
+
 if [ $1 = "INIT" ]; then
     ls | grep -v -E 'download.sh' | xargs rm -r
 elif [ $1 = "ML100K" ]; then
@@ -181,6 +189,8 @@ elif [ $1 = "G1_NEWS" ]; then
     G1_NEWS
 elif [ $1 = "Yelp" ]; then
     Yelp
+elif [ $1 = "Pinterest" ]; then
+    Pinterest
 else
     echo "Invalid Argument"
 fi

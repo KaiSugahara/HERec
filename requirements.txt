@@ -3,3 +3,4 @@ mlflow
 optuna
 flax==0.7.0
 polars
+pymongo

@@ -25,6 +25,8 @@ def getDataset(datasetName: str, seed: int, evalStage: str):
         reader = Twitch100K()
     elif datasetName == "DIGINETICA":
         reader = DIGINETICA()
+    elif datasetName == "Pinterest":
+        reader = Pinterest()
     elif datasetName == "AMAZON_M2":
         reader = AMAZON_M2()
     elif datasetName == "G1NEWS_SESSION":
