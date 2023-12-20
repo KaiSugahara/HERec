@@ -33,7 +33,7 @@ class bprTrainer(baseTrainer):
 
         # Extract DATA from df_VALID
         user_ids = df_VALID["user_ids"]
-        true_items = df_VALID["true_items"]
+        true_items = df_VALID["true_item_ids"]
         true_item_len = df_VALID["true_item_len"]
 
         # Extract Predicted Ranking

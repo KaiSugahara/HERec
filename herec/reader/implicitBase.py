@@ -23,9 +23,14 @@ class implicitBase():
             pl.col("user_id").is_in( df_TRAIN.get_column("user_id").unique(maintain_order=True) )
         )
 
-        # Leave First Interaction (Be Unique) in each set
-        df_TRAIN = df_TRAIN.unique(["user_id", "item_id"], maintain_order=True)
-        df_EVALUATION = df_EVALUATION.unique(["user_id", "item_id"], maintain_order=True)
+        # Leave First Interaction (Be Unique)
+        df_TMP = pl.concat([
+            df_TRAIN.select("user_id", "item_id", pl.lit("train").alias("type")),
+            df_EVALUATION.select("user_id", "item_id", pl.lit("valid").alias("type")),
+        ])
+        df_TMP = df_TMP.unique(["user_id", "item_id"], keep="first")
+        df_TRAIN = df_TMP.filter( pl.col("type") == "train" )
+        df_EVALUATION = df_TMP.filter( pl.col("type") == "valid" )
         
         # Drop unused columns
         df_TRAIN = df_TRAIN.select("user_id", "item_id")
