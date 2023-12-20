@@ -13,10 +13,6 @@ class Twitch100K(implicitBase):
             pl.col("column_3").alias("item_id"),
             pl.col("column_4").alias("timestamp")
         ).unique()
-        df_RAW = df_RAW.sort("timestamp", "user_id", "item_id")
-        
-        # Keep Only First Interaction for Each User and Item
-        df_RAW = df_RAW.unique( ["user_id", "item_id"], keep="first" )
         
         # Sort
         df_RAW = df_RAW.sort("timestamp", "user_id", "item_id")
