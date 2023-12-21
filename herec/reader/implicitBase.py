@@ -28,7 +28,7 @@ class implicitBase():
             df_TRAIN.select("user_id", "item_id", pl.lit("train").alias("type")),
             df_EVALUATION.select("user_id", "item_id", pl.lit("valid").alias("type")),
         ])
-        df_TMP = df_TMP.unique(["user_id", "item_id"], keep="first")
+        df_TMP = df_TMP.unique(["user_id", "item_id"], keep="first", maintain_order=True)
         df_TRAIN = df_TMP.filter( pl.col("type") == "train" )
         df_EVALUATION = df_TMP.filter( pl.col("type") == "valid" )
         
@@ -57,7 +57,7 @@ class implicitBase():
             pl.col("item_id"),
             pl.col("item_id").alias("pos_item_ids"),
         ).explode("item_id").with_columns(
-            pl.col("pos_item_ids").list.unique()
+            pl.col("pos_item_ids").list.unique(maintain_order=True)
         )
 
         # Add Positive Item IDs for Each User in VALID subset
@@ -67,7 +67,7 @@ class implicitBase():
         
         # Add Past Interacted Items to VALID subset
         df_EVALUATION = df_EVALUATION.join(
-            df_TRAIN.select("user_id", pl.col("pos_item_ids").alias("past_item_ids")).unique("user_id"),
+            df_TRAIN.select("user_id", pl.col("pos_item_ids").alias("past_item_ids")).unique("user_id", maintain_order=True),
             how="left",
             on="user_id",
         )
@@ -111,7 +111,7 @@ class implicitBase():
         if "timestamp" in self.df_RAW.columns:
 
             # Split Data Indices to 10 subsets
-            timestamp_subsets = np.array_split( self.df_RAW.get_column("timestamp").unique().sort(), 10 )
+            timestamp_subsets = np.array_split( self.df_RAW.get_column("timestamp").unique(maintain_order=True).sort(), 10 )
 
             # Split Data Indices to 5 folds under temporal splitting and CV
             self._df_SUBSET = {
