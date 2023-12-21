@@ -5,74 +5,65 @@ import mlflow
 import polars as pl
 import numpy as np
 from collections import defaultdict
-from tqdm import tqdm
+from tqdm import trange
 
 from functools import partial
 
 from .baseTrainer import baseTrainer
 
 class bprTrainer(baseTrainer):
-
-    @partial(jax.jit, static_argnums=0)
-    def __calc_top_items(self, params, user_ids):
     
-        # Predict Scores for All Items
-        Y, _ = self.model.apply(
-            {'params': params, **self.variables},
-            user_ids,
-            method=self.model.get_all_scores_by_user_ids,
-            mutable=list(self.variables.keys())
-        )
-        
-        # Top Rows
-        pred_items = (-Y).argsort(axis=1)[:, :100]
-
-        return pred_items
+    @partial(jax.jit, static_argnums=0)
+    def calc_top100_indices(self, params, target_user_ids):
+        scores = self.model.apply( {"params": params}, target_user_ids, method=self.model.get_all_scores_by_user_ids )
+        _, top100_indices = jax.lax.top_k(scores, 100)
+        return top100_indices
     
     def custom_score(self, params, df_VALID, epoch_i):
 
         # Extract DATA from df_VALID
         user_ids = df_VALID["user_ids"]
-        true_items = df_VALID["true_item_ids"]
+        true_item_ids = df_VALID["true_item_ids"]
         true_item_len = df_VALID["true_item_len"]
 
         # Extract Predicted Ranking
-        pred_items = jnp.vstack([
-            self.__calc_top_items(params, sub_user_ids)
-            for sub_user_ids in tqdm(jnp.array_split(user_ids, max(1, len(user_ids)//1024)), desc=f"[Eval. {epoch_i}/{self.epochNum}]")
+        top100_indices = jnp.vstack([
+            self.calc_top100_indices(params, user_ids[i:i+1024]) for i in trange(0, user_ids.shape[0], 1024, desc=f"[Eval. {epoch_i}/{self.epochNum}]")
         ])
 
         # Extract Hit Flag in Predicted Ranking
-        pred_flag = jax.vmap(lambda a, b: jnp.isin(a, b), in_axes=(0, 0), out_axes=(0))(pred_items, true_items)
-        pred_flag = jax.device_get(pred_flag)
+        hit_flags = jax.vmap(lambda a, b: jnp.isin(a, b), in_axes=(0, 0), out_axes=(0))(top100_indices, true_item_ids).astype(int)
+        hit_flags_cumsum = hit_flags.cumsum(axis=1)
 
-        # Initialize
+        # Calc
         metrics = {}
-
-        # Calc.
         for k in [10, 30, 50, 100]:
-            
+
             # HitRate
-            metrics[f"HitRate_{k}"] = pred_flag[:, :k].max(axis=1).mean()
-            
+            metrics[f"HitRate_{k}"] = (hit_flags_cumsum[:, k-1] > 0).mean().tolist()
+
             # Precision
-            metrics[f"Precision_{k}"] = np.mean(pred_flag[:, :k].sum(axis=1) / k)
-            
+            metrics[f"Precision_{k}"] = (hit_flags_cumsum[:, k-1] / k).mean().tolist()
+
             # Recall
-            metrics[f"Recall_{k}"] = np.mean(pred_flag[:, :k].sum(axis=1) / true_item_len)
-            
+            metrics[f"Recall_{k}"] = (hit_flags_cumsum[:, k-1] / true_item_len).mean().tolist()
+
             # MRR
-            metrics[f"MRR_{k}"] = np.mean((1 / (pred_flag[:, :k].argmax(axis=1) + 1)) * pred_flag[:, :k].any(axis=1))
-            
+            metrics[f"MRR_{k}"] = jnp.mean( 1 / (hit_flags[:, :k].argmax(axis=1) + 1) * (hit_flags_cumsum[:, k-1] > 0) ).tolist()
+
+            # Coverage
+            metrics[f"Coverage_{k}"] = (jnp.unique( top100_indices[:, :k] ).shape[0] / self.model.item_num)
+
             # nDCG
-            dcg = np.sum(pred_flag[:, :k] * (1 / np.log2(np.arange(k) + 2)), axis=1)
-            idcg = np.array([np.sum(1 / np.log2(np.arange(min(k, l)) + 2)) for l in true_item_len.tolist()])
-            metrics[f"nDCG_{k}"] = np.mean(dcg / idcg)
+            idcg_tmp = 1 / jnp.log2(jnp.arange(2, k+2))
+            dcg = jnp.where( hit_flags[:, :k], idcg_tmp, 0 ).sum(axis=1)
+            idcg = idcg_tmp.cumsum()[ jnp.minimum(true_item_len, k) - 1 ]
+            metrics[f"nDCG_{k}"] = (dcg / idcg).mean().tolist()
 
         # Calc. Ave. Score over all Users & Save to MLflow
-        mlflow.log_metrics({key: np.mean(val) for key, val in metrics.items()}, step=epoch_i)
+        mlflow.log_metrics(metrics, step=epoch_i)
 
-        return - np.mean(metrics[f"nDCG_10"])
+        return - metrics[f"nDCG_{k}"]
 
     @partial(jax.jit, static_argnums=0)
     def loss_function(self, params, variables, X, Y):
