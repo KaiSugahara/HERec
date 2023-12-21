@@ -100,6 +100,6 @@ class bprTrainer(baseTrainer):
     def clear_cache(self):
 
         super().clear_cache()
-        self.__calc_top_items.clear_cache()
+        self.calc_top100_indices.clear_cache()
 
         return self
