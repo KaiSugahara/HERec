@@ -63,7 +63,7 @@ class bprTrainer(baseTrainer):
         # Calc. Ave. Score over all Users & Save to MLflow
         mlflow.log_metrics(metrics, step=epoch_i)
 
-        return - metrics[f"nDCG_{k}"]
+        return - metrics[f"nDCG_10"]
 
     @partial(jax.jit, static_argnums=0)
     def loss_function(self, params, variables, X, Y):
