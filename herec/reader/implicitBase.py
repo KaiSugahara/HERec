@@ -109,6 +109,8 @@ class implicitBase():
         
         # Temporal Global Split
         if "timestamp" in self.df_RAW.columns:
+            
+            print("Strategy: Temporal Global Splitting")
 
             # Split Data Indices to 10 subsets
             timestamp_subsets = np.array_split( self.df_RAW.get_column("timestamp").unique(maintain_order=True).sort(), 10 )
@@ -125,6 +127,8 @@ class implicitBase():
             
         # Random Split
         else:
+            
+            print("Strategy: Random Splitting")
             
             # Initialize
             self._df_SUBSET = {}
