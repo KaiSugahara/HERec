@@ -106,43 +106,19 @@ class implicitBase():
         }
 
     def __split(self):
-        
-        # Temporal Global Split
-        if "timestamp" in self.df_RAW.columns:
-            
-            print("Strategy: Temporal Global Splitting")
 
-            # Split Data Indices to 10 subsets
-            timestamp_subsets = np.array_split( self.df_RAW.get_column("timestamp").unique(maintain_order=True).sort(), 10 )
+        # Split Data Indices to 10 subsets
+        timestamp_subsets = np.array_split( self.df_RAW.get_column("timestamp").unique().sort(), 10 )
 
-            # Split Data Indices to 5 folds under temporal splitting and CV
-            self._df_SUBSET = {
-                fold_id: {
-                    "TRAIN": self.df_RAW.filter( pl.col("timestamp").is_in( np.hstack(timestamp_subsets[fold_id:fold_id+4]).tolist() ) ),
-                    "VALID": self.df_RAW.filter( pl.col("timestamp").is_in( timestamp_subsets[fold_id+4].tolist() ) ),
-                    "TEST": self.df_RAW.filter( pl.col("timestamp").is_in( timestamp_subsets[fold_id+5].tolist() ) ),
-                }
-                for fold_id in range(5)
+        # Split Data Indices to 3 folds under temporal splitting and CV
+        self._df_SUBSET = {
+            fold_id: {
+                "TRAIN": self.df_RAW.filter( pl.col("timestamp").is_in( np.hstack(timestamp_subsets[fold_id:fold_id+6]).tolist() ) ),
+                "VALID": self.df_RAW.filter( pl.col("timestamp").is_in( timestamp_subsets[fold_id+6].tolist() ) ),
+                "TEST": self.df_RAW.filter( pl.col("timestamp").is_in( timestamp_subsets[fold_id+7].tolist() ) ),
             }
-            
-        # Random Split
-        else:
-            
-            print("Strategy: Random Splitting")
-            
-            # Initialize
-            self._df_SUBSET = {}
-
-            # Split
-            for i in range(5):
-                df = self.df_RAW.sort("user_id", "item_id").sample(fraction=1, shuffle=True, seed=i).with_columns(
-                    (pl.arange(0, self.df_RAW.height) % 5).alias("fold_id")
-                )
-                self._df_SUBSET[i] = dict(
-                    TRAIN = df.filter( pl.col("fold_id").is_in([0, 1, 2]) ),
-                    VALID = df.filter( pl.col("fold_id") == 3 ),
-                    TEST = df.filter( pl.col("fold_id") == 4 ),
-                )
+            for fold_id in range(3)
+        }
 
         return self
 

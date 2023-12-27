@@ -91,4 +91,4 @@ class train:
 
         # TPE
         study = optuna.create_study( sampler=optuna.samplers.TPESampler(seed=self.seed) )
-        study.optimize( self.objective, n_trials=50 )
+        study.optimize( self.objective, n_trials=100 )
