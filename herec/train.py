@@ -7,11 +7,15 @@ from herec.utils import *
 class train:
     
     def objective(self, trial):
+        
+        # Get Hyper-parameter Setting
+        hyparams = self.suggester.suggest_hyparam(trial)
+        
+        # Return the results of this experiment if it already exists.
+        if trial.number < self.df_RESULT.shape[0]:
+            return self.df_RESULT.iloc[trial.number].loc["metrics.BEST_VALID_LOSS"]
 
         with mlflow.start_run(experiment_id=self.experiment_id) as run:
-
-            # Get Hyper-parameter Setting
-            hyparams = self.suggester.suggest_hyparam(trial)
 
             # Set Trainer Seed same as Sampler Seed
             hyparams["trainer"]["seed"] = self.seed
@@ -59,6 +63,9 @@ class train:
 
         print("Experiment Name:", EXPERIMENT_NAME)
         print("Experiment ID:", self.experiment_id)
+        
+        self.df_RESULT = mlflow.search_runs(experiment_ids=[self.experiment_id], filter_string=f'params.seed = "{self.seed}"')
+        self.df_RESULT = self.df_RESULT.sort_values("start_time")
 
         return self
 
