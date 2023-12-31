@@ -5,7 +5,7 @@ from tqdm import tqdm, trange
 
 class IHSR():
 
-    def __init__(self, d, n_by_level, m_by_level, lam, seed, max_iter=200, run=None):
+    def __init__(self, d, n_by_level, m_by_level, lam, seed, max_iter=1000, run=None):
 
         """
             args:
@@ -139,10 +139,9 @@ class IHSR():
                 mlflow.log_metric("TRAIN_LOSS", loss_current, step=i+1)
                 # RMSE(VALID)
                 if (X_VALID is not None) and (W_VALID is not None):
-                    prev_valid_loss = valid_loss.copy()
                     valid_loss = np.mean((X_VALID[W_VALID == 1] - X_pred[W_VALID == 1]) ** 2)
                     mlflow.log_metric("VALID_LOSS", valid_loss, step=i+1)
-                    if (valid_loss > prev_valid_loss):
+                    if (valid_loss > self.best_valid_loss):
                         counter = counter + 1
                     else:
                         counter = 0

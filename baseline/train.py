@@ -1,8 +1,12 @@
+import argparse
+import os
 import sys
 import optuna
 import numpy as np
 from scipy.sparse import csr_array
 import math
+
+os.environ["MKL_NUM_THREADS"] = "30"
 
 sys.path.append("..")
 from herec.utils import *
@@ -116,12 +120,55 @@ class train:
         study = optuna.create_study( sampler=optuna.samplers.TPESampler(seed=self.seed) )
         study.optimize( self.objective, n_trials=100 )
 
-modelName, suggester = "eTREE", hyParamSuggester(["../setting/model/eTREE.yaml"])
-for datasetName in ["ML100K", "ML1M", "Ciao_PART", "Ciao", "Yelp"]:
-    for seed in range(3):
-        train( modelName, datasetName, suggester, seed, memo="des" )
+"""
+    Parse Arguments
+"""
 
-# modelName, suggester = "IHSR", hyParamSuggester(["../setting/model/IHSR.yaml"])
-# for datasetName in ["ML100K", "ML1M", "Ciao_PART", "Ciao", "Yelp"]:
-#     for seed in range(3):
-#         train( modelName, datasetName, suggester, seed, memo="des" )
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument(
+    '-m', "--model",
+    choices=[
+        "IHSR",
+        "eTREE",
+    ],
+    help='name of the model to be trained and tested',
+    required=True,
+)
+parser.add_argument(
+    '-d', "--dataset",
+    choices=[
+        # Explicit RS
+        "ML100K", "ML1M", "Ciao", "Ciao_PART", "Yelp",
+    ],
+    help='a dataset to be trained and tested',
+    required=True,
+    nargs="+",
+)
+parser.add_argument(
+    "--config",
+    help='path of config file (yaml file)',
+    required=True,
+    nargs="+",
+)
+parser.add_argument(
+    "--seed",
+    help='seed',
+    required=True,
+    type=int,
+    nargs="+",
+)
+parser.add_argument(
+    "--memo",
+    help='memo stored in MLflow run',
+)
+args = parser.parse_args()
+
+"""
+    Train
+"""
+
+modelName = args.model
+suggester = hyParamSuggester(args.config)
+for datasetName in args.dataset:
+    for seed in args.seed:
+        train( modelName, datasetName, suggester, seed, memo=args.memo )
