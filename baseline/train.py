@@ -1,12 +1,14 @@
-import argparse
 import os
+os.environ["OPENBLAS_NUM_THREADS"] = "30"
+os.environ["MKL_NUM_THREADS"] = "30"
+os.environ["VECLIB_NUM_THREADS"] = "30"
+
+import argparse
 import sys
 import optuna
 import numpy as np
 from scipy.sparse import csr_array
 import math
-
-os.environ["MKL_NUM_THREADS"] = "30"
 
 sys.path.append("..")
 from herec.utils import *
