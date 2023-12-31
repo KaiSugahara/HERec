@@ -1,0 +1,27 @@
+# MODEL
+model:
+    R:
+        type: int
+        low: 10
+        high: 1000
+        log: True
+    item_clusters:
+        type: categorical
+        choices:
+            - "A"
+            - "B"
+            - "C"
+    lbd:
+        type: float
+        low: 1e-5
+        high: 1e+1
+        log: True
+    mu:
+        type: float
+        low: 1e-4
+        high: 1e+2
+        log: True
+    eta:
+        type: categorical
+        choices:
+            - 1000

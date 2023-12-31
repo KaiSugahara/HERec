@@ -1,0 +1,32 @@
+# MODEL
+model:
+    d:
+        type: int
+        low: 10
+        high: 1000
+        log: True
+    userClusterDepth:
+        type: int
+        low: 1
+        high: 3
+        log: False
+    userClusterNum:
+        type: int
+        low: 10
+        high: 1000
+        log: False
+    itemClusterDepth:
+        type: int
+        low: 1
+        high: 3
+        log: False
+    itemClusterNum:
+        type: int
+        low: 10
+        high: 1000
+        log: False
+    lam:
+        type: float
+        low: 1e-5
+        high: 1e+1
+        log: True
