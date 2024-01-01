@@ -29,7 +29,8 @@ class train:
             # Get Hyper-parameter Setting
             hyparams = self.suggester.suggest_hyparam(trial)
 
-            self.seed
+            # Set Model Seed same as Sampler Seed
+            hyparams["model"]["seed"] = self.seed
 
             # Save Hyper-parameter to MLFlow
             mlflow.log_params(hyparams["model"])
