@@ -1,9 +1,64 @@
-import os
-os.environ["OPENBLAS_NUM_THREADS"] = "30"
-os.environ["MKL_NUM_THREADS"] = "30"
-os.environ["VECLIB_NUM_THREADS"] = "30"
+"""
+    Parse Arguments
+"""
 
 import argparse
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument(
+    '-m', "--model",
+    choices=[
+        "IHSR",
+        "eTREE",
+    ],
+    help='name of the model to be trained and tested',
+    required=True,
+)
+parser.add_argument(
+    '-d', "--dataset",
+    choices=[
+        # Explicit RS
+        "ML100K", "ML1M", "Ciao", "Ciao_PART", "Yelp",
+    ],
+    help='a dataset to be trained and tested',
+    required=True,
+    nargs="+",
+)
+parser.add_argument(
+    "--config",
+    help='path of config file (yaml file)',
+    required=True,
+    nargs="+",
+)
+parser.add_argument(
+    "--seed",
+    help='seed',
+    required=True,
+    type=int,
+    nargs="+",
+)
+parser.add_argument(
+    "--memo",
+    help='memo stored in MLflow run',
+)
+parser.add_argument(
+    "--threads",
+    help='threads',
+    required=True,
+    type=int,
+    default=30,
+)
+args = parser.parse_args()
+
+"""
+    Train
+"""
+
+import os
+os.environ["OPENBLAS_NUM_THREADS"] = str(args.threads)
+os.environ["MKL_NUM_THREADS"] = str(args.threads)
+os.environ["VECLIB_NUM_THREADS"] = str(args.threads)
+
 import sys
 import optuna
 import numpy as np
@@ -23,11 +78,15 @@ load_dotenv("../.env")
 class train:
     
     def objective(self, trial):
+        
+        # Get Hyper-parameter Setting
+        hyparams = self.suggester.suggest_hyparam(trial)
+        
+        # Return the results of this experiment if it already exists.
+        if trial.number < self.df_RESULT.shape[0]:
+            return self.df_RESULT.iloc[trial.number].loc["metrics.BEST_VALID_LOSS"]
 
         with mlflow.start_run(experiment_id=self.experiment_id) as run:
-
-            # Get Hyper-parameter Setting
-            hyparams = self.suggester.suggest_hyparam(trial)
 
             # Set Model Seed same as Sampler Seed
             hyparams["model"]["seed"] = self.seed
@@ -79,6 +138,9 @@ class train:
 
         print("Experiment Name:", EXPERIMENT_NAME)
         print("Experiment ID:", self.experiment_id)
+        
+        self.df_RESULT = mlflow.search_runs(experiment_ids=[self.experiment_id], filter_string=f'params.seed = "{self.seed}"')
+        self.df_RESULT = self.df_RESULT.sort_values("start_time")
 
         return self
 
@@ -122,53 +184,6 @@ class train:
         # TPE
         study = optuna.create_study( sampler=optuna.samplers.TPESampler(seed=self.seed) )
         study.optimize( self.objective, n_trials=100 )
-
-"""
-    Parse Arguments
-"""
-
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument(
-    '-m', "--model",
-    choices=[
-        "IHSR",
-        "eTREE",
-    ],
-    help='name of the model to be trained and tested',
-    required=True,
-)
-parser.add_argument(
-    '-d', "--dataset",
-    choices=[
-        # Explicit RS
-        "ML100K", "ML1M", "Ciao", "Ciao_PART", "Yelp",
-    ],
-    help='a dataset to be trained and tested',
-    required=True,
-    nargs="+",
-)
-parser.add_argument(
-    "--config",
-    help='path of config file (yaml file)',
-    required=True,
-    nargs="+",
-)
-parser.add_argument(
-    "--seed",
-    help='seed',
-    required=True,
-    type=int,
-    nargs="+",
-)
-parser.add_argument(
-    "--memo",
-    help='memo stored in MLflow run',
-)
-args = parser.parse_args()
-
-"""
-    Train
-"""
 
 modelName = args.model
 suggester = hyParamSuggester(args.config)
