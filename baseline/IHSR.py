@@ -4,6 +4,13 @@ import numpy as np
 from tqdm import tqdm, trange
 
 class IHSR():
+    
+    def __multi_dot(self, arrays):
+        
+        if len(arrays) > 1:
+            return np.linalg.multi_dot(arrays)
+        else:
+            return arrays
 
     def __init__(self, d, n_by_level, m_by_level, lam, seed, max_iter=1000, run=None):
 
@@ -97,31 +104,35 @@ class IHSR():
                 counter = 0
 
         # Step10-20
-        for i in trange(self.max_iter, desc="[Step10-20]"):
+        for epoch_idx in trange(self.max_iter, desc="[Step10-20]"):
 
             # Step11-14
-            B = {
-                i: np.linalg.multi_dot( [U_by_level[j] for j in range(1, p+1)] + [V_by_level[j] for j in range(q, i, -1)] )
-                for i in range(1, q+1)
-            }
-            M = {
-                i: np.linalg.multi_dot( [V_by_level[j] for j in range(i-1, 0, -1)] + [np.eye(X.shape[1])]*2 )
-                for i in range(1, q+1)
-            }
+            B = {}
+            B[q] = self.__multi_dot([U_by_level[j] for j in range(1, p+1)])
+            for i in reversed(range(1, q)):
+                B[i] = B[i+1] @ V_by_level[i+1]
+            
+            M = {}
+            M[1] = np.eye(X.shape[1])
+            for i in range(2, q+1):
+                M[i] = V_by_level[i-1] @ M[i-1]
+            
             V_by_level = {
                 i: np.nan_to_num( V_by_level[i] * np.sqrt((B[i].T @ (W * X) @ M[i].T) / (B[i].T @ (W * (B[i] @ V_by_level[i] @ M[i])) @ M[i].T + self.lam * V_by_level[i])) )
                 for i in range(1, q+1)
             }
             
             # Step16-19
-            A = {
-                i: np.linalg.multi_dot( [np.eye(X.shape[0])]*2 + [U_by_level[j] for j in range(1, i)] )
-                for i in range(1, p+1)
-            }
-            H = {
-                i: np.linalg.multi_dot( [U_by_level[j] for j in range(i+1, p+1)] + [V_by_level[j] for j in range(q, 0, -1)] )
-                for i in range(1, p+1)
-            }
+            A = {}
+            A[1] = np.eye(X.shape[0])
+            for i in range(2, p+1):
+                A[i] = A[i-1] @ U_by_level[i-1]
+
+            H = {}
+            H[p] = self.__multi_dot([V_by_level[j] for j in range(q, 0, -1)])
+            for i in reversed(range(1, p)):
+                H[i] = U_by_level[i+1] @ H[i+1]
+            
             U_by_level = {
                 i: np.nan_to_num( U_by_level[i] * np.sqrt((A[i].T @ (W * X) @ H[i].T) / (A[i].T @ (W * (A[i] @ U_by_level[i] @ H[i])) @ H[i].T + self.lam * U_by_level[i])) )
                 for i in range(1, p+1)
@@ -136,11 +147,11 @@ class IHSR():
                 X_pred = np.linalg.multi_dot( [U_by_level[i] for i in range(1, p+1)] + [V_by_level[j] for j in range(q, 0, -1)] )
                 # Loss
                 loss_current = np.sum((W * (X - X_pred))**2) + self.lam * sum([np.sum(U**2) for U in U_by_level.values()] + [np.sum(V**2) for V in V_by_level.values()])
-                mlflow.log_metric("TRAIN_LOSS", loss_current, step=i+1)
+                mlflow.log_metric("TRAIN_LOSS", loss_current, step=epoch_idx+1)
                 # RMSE(VALID)
                 if (X_VALID is not None) and (W_VALID is not None):
                     valid_loss = np.mean((X_VALID[W_VALID == 1] - X_pred[W_VALID == 1]) ** 2)
-                    mlflow.log_metric("VALID_LOSS", valid_loss, step=i+1)
+                    mlflow.log_metric("VALID_LOSS", valid_loss, step=epoch_idx+1)
                     if (valid_loss >= self.best_valid_loss):
                         counter = counter + 1
                     else:
