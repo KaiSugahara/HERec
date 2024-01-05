@@ -2,7 +2,7 @@ import numpy as np
 
 class WNMF():
 
-    def __init__(self, d, lam, seed, max_iter=200):
+    def __init__(self, d, lam, seed, max_iter=200, tol=1e-4):
 
         """
             args:
@@ -20,6 +20,7 @@ class WNMF():
         self.lam = lam
         self.seed = seed
         self.max_iter = max_iter
+        self.tol = tol
 
     def fit(self, X, W):
 
@@ -53,8 +54,14 @@ class WNMF():
         # Initialize 
         U = np.abs(np.random.randn(X.shape[0], self.d)) # Latent Matrix of row objects
         V = np.abs(np.random.randn(self.d, X.shape[1])) # Latent Matrix of column objects
+        
+        # Initial Violation
+        X_pred = U @ V
+        violation_init = np.mean((X[W == 1] - X_pred[W == 1]) ** 2)
 
         for i in range(self.max_iter):
+            
+            print(i, end="")
 
             # Update U
             upper, lower = ((W * X) @ V.T), ((W * (U @ V)) @ V.T + self.lam * U)
@@ -66,8 +73,11 @@ class WNMF():
             V = V * np.sqrt(np.divide(upper, lower, out=np.zeros_like(upper), where=(lower!=0)))
             V = np.nan_to_num(V)
             
-            # Calc Pred Matirx
+            # Judge Terminating
             X_pred = U @ V
+            violation = np.mean((X[W == 1] - X_pred[W == 1]) ** 2)
+            if violation / violation_init <= self.tol:
+                break
 
         self.U, self.V = U.copy(), V.copy()
 
