@@ -38,7 +38,7 @@ parser.add_argument(
         # Explicit RS
         "ML100K", "ML1M", "ML10M", "ML25M", "Ciao", "Ciao_PART", "Yelp",
         # Implicit RS (BPR)
-        "ML100K_IMPLICIT", "ML1M_IMPLICIT", "Twitch100K", "DIGINETICA", "Pinterest",
+        "ML100K_IMPLICIT", "ML1M_IMPLICIT", "Twitch100K", "DIGINETICA", "FourSquare",
         # Sequential RS
         "AMAZON_M2", "G1NEWS_SESSION",
     ],

@@ -11,10 +11,6 @@ def getDataset(datasetName: str, seed: int, evalStage: str):
         reader = ML1M()
     elif datasetName == "ML1M_IMPLICIT":
         reader = ML1M_IMPLICIT()
-    elif datasetName == "ML10M":
-        reader = ML10M()
-    elif datasetName == "ML25M":
-        reader = ML25M()
     elif datasetName == "Ciao":
         reader = Ciao()
     elif datasetName == "Ciao_PART":
@@ -25,12 +21,8 @@ def getDataset(datasetName: str, seed: int, evalStage: str):
         reader = Twitch100K()
     elif datasetName == "DIGINETICA":
         reader = DIGINETICA()
-    elif datasetName == "Pinterest":
-        reader = Pinterest()
-    elif datasetName == "AMAZON_M2":
-        reader = AMAZON_M2()
-    elif datasetName == "G1NEWS_SESSION":
-        reader = G1NEWS_SESSION()
+    elif datasetName == "FourSquare":
+        reader = FourSquare()
 
     DATA = reader.get(seed, evalStage).copy()
 
