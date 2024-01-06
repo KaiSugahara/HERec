@@ -5,16 +5,12 @@ model:
         low: 10
         high: 100
         log: True
-    itemClusterDepth:
-        type: int
-        low: 1
-        high: 3
-        log: False
-    itemClusterNum:
-        type: int
-        low: 10
-        high: 1000
-        log: False
+    item_clusters:
+        type: categorical
+        choices:
+            - "A"
+            - "B"
+            - "C"
     lbd:
         type: float
         low: 1e-5

@@ -101,10 +101,9 @@ class train:
         
             # Define Model
             if self.modelName == "eTREE":
-                num = hyparams["model"].pop("itemClusterNum")
                 model = eTREE(
                     R = hyparams["model"]["R"],
-                    item_clusters = [max(math.ceil(num / (2**l)), 1) for l in range(0, hyparams["model"].pop("itemClusterDepth"))],
+                    item_clusters = {"A": [10], "B": [25, 5], "C": [50, 10, 3]}[hyparams["model"]["item_clusters"]],
                     lbd = hyparams["model"]["lbd"],
                     mu = hyparams["model"]["mu"],
                     eta = hyparams["model"]["eta"],
