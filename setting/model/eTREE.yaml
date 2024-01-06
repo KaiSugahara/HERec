@@ -3,14 +3,18 @@ model:
     R:
         type: int
         low: 10
-        high: 1000
+        high: 100
         log: True
-    item_clusters:
-        type: categorical
-        choices:
-            - "A"
-            - "B"
-            - "C"
+    itemClusterDepth:
+        type: int
+        low: 1
+        high: 3
+        log: False
+    itemClusterNum:
+        type: int
+        low: 10
+        high: 1000
+        log: False
     lbd:
         type: float
         low: 1e-5
