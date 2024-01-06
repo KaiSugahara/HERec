@@ -113,8 +113,8 @@ class train:
             elif self.modelName == "IHSR":
                 model = IHSR(
                     d = hyparams["model"]["d"],
-                    n_by_level = {**{1: hyparams["model"]["userClusterNum"]}, **{l+1: max(math.ceil(hyparams["model"]["userClusterNum"] / (2**l)), 1) for l in range(1, hyparams["model"]["userClusterDepth"])}},
-                    m_by_level = {**{1: hyparams["model"]["itemClusterNum"]}, **{l+1: max(math.ceil(hyparams["model"]["itemClusterNum"] / (2**l)), 1) for l in range(1, hyparams["model"]["itemClusterDepth"])}},
+                    n_by_level = {1: hyparams["model"]["userClusterNum"]},
+                    m_by_level = {1: hyparams["model"]["itemClusterNum"]},
                     lam = hyparams["model"]["lam"],
                     seed = self.seed,
                     run = run,

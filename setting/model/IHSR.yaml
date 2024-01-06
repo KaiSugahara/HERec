@@ -3,22 +3,12 @@ model:
     d:
         type: int
         low: 10
-        high: 1000
+        high: 100
         log: True
-    userClusterDepth:
-        type: int
-        low: 1
-        high: 3
-        log: False
     userClusterNum:
         type: int
         low: 10
         high: 1000
-        log: False
-    itemClusterDepth:
-        type: int
-        low: 1
-        high: 3
         log: False
     itemClusterNum:
         type: int
