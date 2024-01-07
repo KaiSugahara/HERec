@@ -12,7 +12,7 @@ class IHSR():
         else:
             return arrays
 
-    def __init__(self, d, n_by_level, m_by_level, lam, seed, max_iter=1000, run=None):
+    def __init__(self, d, n_by_level, m_by_level, lam, seed, max_iter=200, run=None):
 
         """
             args:

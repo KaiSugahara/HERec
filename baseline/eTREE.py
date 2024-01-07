@@ -5,7 +5,7 @@ from tqdm import tqdm, trange
 
 class eTREE():
 
-    def __init__(self, R, item_clusters, lbd, mu, eta, seed, maxNumIter=1000, run=None):
+    def __init__(self, R, item_clusters, lbd, mu, eta, seed, maxNumIter=200, run=None):
 
         """
             args:
