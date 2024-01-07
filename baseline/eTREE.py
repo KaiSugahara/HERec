@@ -186,8 +186,13 @@ class eTREE():
                 if (X_VALID is not None) and (W_VALID is not None):
                     valid_loss = np.mean((X_hat[W_VALID == 1] - X_VALID[W_VALID == 1])**2)
                     mlflow.log_metric("VALID_LOSS", valid_loss, step=iteration+1)
-                    if (valid_loss >= self.best_valid_loss) or np.isnan(valid_loss):
+                    if (valid_loss >= self.best_valid_loss):
                         counter = counter + 1
+                    elif np.isnan(valid_loss):
+                        for i in range(2, 11):
+                            mlflow.log_metric("TRAIN_LOSS", train_loss, step=iteration+i)
+                            mlflow.log_metric("VALID_LOSS", valid_loss, step=iteration+i)
+                        break
                     else:
                         counter = 0
                         mlflow.log_metric("BEST_VALID_LOSS", valid_loss)
