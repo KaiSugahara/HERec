@@ -152,7 +152,7 @@ class IHSR():
                 if (X_VALID is not None) and (W_VALID is not None):
                     valid_loss = np.mean((X_VALID[W_VALID == 1] - X_pred[W_VALID == 1]) ** 2)
                     mlflow.log_metric("VALID_LOSS", valid_loss, step=epoch_idx+1)
-                    if (valid_loss >= self.best_valid_loss):
+                    if (valid_loss >= self.best_valid_loss) or np.isnan(valid_loss):
                         counter = counter + 1
                     else:
                         counter = 0
