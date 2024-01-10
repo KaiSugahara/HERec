@@ -69,17 +69,13 @@ class HE_NeuMF(nn.Module):
 
         return X_LAST
     
-    def __get_all_scores_by_user_id(self, user_id, itemGmfEmbed, itemMlpEmbed):
-
-        # Get Target User Embeddings
-        userGmfEmbed = jnp.tile( self.userGmfEmbedder.getEmbed(user_id), (self.item_num, 1) )
-        userMlpEmbed = jnp.tile( self.userMlpEmbedder.getEmbed(user_id), (self.item_num, 1) )
+    def __get_all_scores_by_user(self, userGmfEmbed, userMlpEmbed, itemGmfEmbedMatrix, itemMlpEmbedMatrix):
 
         # GMF
-        X_GMF = userGmfEmbed * itemGmfEmbed
+        X_GMF = userGmfEmbed.reshape(1, -1) * itemGmfEmbedMatrix
         
         # MLP
-        X_MLP = jnp.hstack([userMlpEmbed, itemMlpEmbed]) # Concatenation
+        X_MLP = jnp.hstack([jnp.repeat(userMlpEmbed.reshape(1, -1), self.item_num, axis=0), itemMlpEmbedMatrix]) # Concatenation
         X_MLP = nn.relu( self.Dense1(X_MLP) ) # 1layer -> 2layer
         X_MLP = nn.relu( self.Dense2(X_MLP) ) # 2layer -> 3layer
         
@@ -90,9 +86,13 @@ class HE_NeuMF(nn.Module):
         return X_LAST.reshape(-1)
     
     def get_all_scores_by_user_ids(self, user_ids):
+        
+        # Get Target User Embeddings
+        userGmfEmbedMatrix = self.userGmfEmbedder.getEmbed(user_ids)
+        userMlpEmbedMatrix = self.userMlpEmbedder.getEmbed(user_ids)
 
         # Get All Item Embeddings
-        itemGmfEmbed = self.itemGmfEmbedder.getEmbedByLevel(level=0)
-        itemMlpEmbed = self.itemMlpEmbedder.getEmbedByLevel(level=0)
+        itemGmfEmbedMatrix = self.itemGmfEmbedder.getEmbedByLevel(level=0)
+        itemMlpEmbedMatrix = self.itemMlpEmbedder.getEmbedByLevel(level=0)
 
-        return jax.vmap(self.__get_all_scores_by_user_id, in_axes=(0, None, None), out_axes=0)(user_ids, itemGmfEmbed, itemMlpEmbed)
+        return jax.vmap(self.__get_all_scores_by_user, in_axes=(0, 0, None, None), out_axes=0)(userGmfEmbedMatrix, userMlpEmbedMatrix, itemGmfEmbedMatrix, itemMlpEmbedMatrix)
