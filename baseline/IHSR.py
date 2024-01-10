@@ -12,7 +12,7 @@ class IHSR():
         else:
             return arrays
 
-    def __init__(self, d, n_by_level, m_by_level, lam, seed, max_iter=200, run=None):
+    def __init__(self, d, n_by_level, m_by_level, lam, seed, max_iter=200, es=True, run=None):
 
         """
             args:
@@ -36,6 +36,7 @@ class IHSR():
         self.lam = lam
         self.seed = seed
         self.max_iter = max_iter
+        self.es = es
         self.run = run
 
     def fit(self, X, W, X_VALID=None, W_VALID=None):
@@ -163,7 +164,7 @@ class IHSR():
                         counter = 0
                         mlflow.log_metric("BEST_VALID_LOSS", valid_loss)
                         self.best_valid_loss = valid_loss
-                    if counter >= 10: break
+                    if (counter >= 10) and self.es: break
             
         # Store Variables
         self.X_pred = X_pred

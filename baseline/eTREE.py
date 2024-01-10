@@ -5,7 +5,7 @@ from tqdm import tqdm, trange
 
 class eTREE():
 
-    def __init__(self, R, item_clusters, lbd, mu, eta, seed, maxNumIter=200, run=None):
+    def __init__(self, R, item_clusters, lbd, mu, eta, seed, maxNumIter=200, es=True, run=None):
 
         """
             args:
@@ -26,6 +26,7 @@ class eTREE():
         self.eta = eta
         self.run = run
         self.seed = seed
+        self.es = es
         self.maxNumIter = maxNumIter
 
     def fit(self, X, W, X_VALID=None, W_VALID=None):
@@ -197,6 +198,6 @@ class eTREE():
                         counter = 0
                         mlflow.log_metric("BEST_VALID_LOSS", valid_loss)
                         self.best_valid_loss = valid_loss
-                    if counter >= 10: break
+                    if (counter >= 10) and self.es: break
             
             self.X_hat = X_hat.copy()
